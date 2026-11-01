@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>زفاف صالح وشذا</title>
+<link rel="preload" href="fonts/amiri-400-arabic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/aref-ruqaa-700-arabic.woff2" as="font" type="font/woff2" crossorigin>
+<link href="fonts/fonts.css" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1c1617; --muted: #6d6260; --red: #a3192b; --cream: #e6d8c4;
+    --paper: #f7f2ec; --gold: #b8935a; --line: rgba(60, 45, 40, .18); --bg: #e2d8cd;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--ink); font-family: 'Amiri', serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* one fixed copy of the texture behind everything: no tiling seams, and works on iOS (unlike background-attachment: fixed) */
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: -1;
+    background: var(--bg) url(bg.jpg) center / cover no-repeat;
+  }
+  button, input, textarea { font: inherit; color: inherit; }
+  [hidden] { display: none !important; }
+
+  /* ---------- hero: the animated photo card ---------- */
+  .hero { display: flex; justify-content: center; }
+  #card {
+    position: relative; aspect-ratio: 9 / 16;
+    height: min(120svh, calc(100vw * 16 / 9));
+    background: var(--cream);
+    box-shadow: 0 20px 60px rgba(60, 40, 30, .25); overflow: hidden;
+  }
+  #card .photo {
+    position: absolute; left: 0; width: 100%; display: block; object-fit: contain;
+    /* the lower 84% of the card, scaled down whole so the children's faces sit below the names
+       and their feet stay in view; every edge fades into the cream card, and the bottom fade
+       also hides the video tool's watermark in the lower corner */
+    top: 16%; height: 84%;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 85%, transparent 94%), linear-gradient(to right, transparent 8%, #000 16%, #000 84%, transparent 92%);
+    -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 85%, transparent 94%), linear-gradient(to right, transparent 8%, #000 16%, #000 84%, transparent 92%);
+    mask-composite: intersect;
+    transform-origin: 55% 62%;
+    /* warms the photo's grey-pink backdrop to the cover's cream wall (#e6d8c4) */
+    filter: sepia(.16) brightness(.96);
+  }
+  /* slow zoom only while showing the still photo; a real clip carries its own motion */
+  #card.play.still .photo { animation: kenburns 20s ease-in-out infinite alternate; }
+  @keyframes kenburns { from { transform: scale(1); } to { transform: scale(1.09) translateY(-1.5%); } }
+  /* soft glow behind the text so it stays readable over the flowers */
+  #card::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(60% 17% at 50% 14%, rgba(240, 230, 214, .8), transparent),
+      radial-gradient(60% 13% at 50% 89%, rgba(240, 230, 214, .85), transparent);
+  }
+  /* 720x1280 design stage (same layout as overlay.html), scaled to the card by JS */
+  #stage { position: absolute; top: 0; left: 0; width: 720px; height: 1280px; transform-origin: 0 0; z-index: 1; }
+  #stage .t { position: absolute; left: 0; right: 0; text-align: center; color: var(--ink); }
+  #stage .small { font-family: 'Cinzel', serif; font-weight: 500; font-size: 21px; letter-spacing: 4.5px; line-height: 34px; direction: ltr; }
+  #stage .big { font-family: 'Cinzel', serif; font-weight: 500; font-size: 64px; letter-spacing: 2px; line-height: 1; direction: ltr; }
+  #stage .rule { position: absolute; left: 50%; transform: translateX(-50%); margin: 0; gap: 14px; }
+  #stage .rule i { display: block; height: 1.5px; background: #3a3030; opacity: 1; }
+  #stage .heart { width: 18px; height: 16px; }
+  #stage .row {
+    position: absolute; left: 0; right: 0; display: flex; justify-content: center; align-items: center; gap: 16px;
+    font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 25px; letter-spacing: 4px; color: var(--ink); direction: ltr;
+  }
+  #stage .row svg { width: 30px; height: 30px; }
+  #stage .ar { font-family: 'Amiri', serif; font-weight: 700; }
+  #stage > * { opacity: 0; }
+  #card.play #stage > * { animation: line-in 1.4s ease both; animation-delay: calc(var(--i) * .35s + .3s); }
+  @keyframes line-in { from { opacity: 0; translate: 0 14px; } to { opacity: 1; translate: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    #card.play .photo { animation: none; }
+    #card.play #stage > * { animation: none; opacity: 1; }
+  }
+  #start {
+    position: absolute; inset: 0; cursor: pointer; z-index: 2;
+    display: flex; align-items: center; justify-content: center;
+  }
+  /* cover photo: the whole flower-and-lantern set (1.jpg) with the hugging kids cut out (2.png)
+     sitting on its rug below the seal. The cut-out is cropped on its right and bottom, so it is
+     pinned to the card's right edge and dropped just past its bottom to hide those cuts.
+     Both doors carry the whole picture, each clipped to its half, so on tap they part from the middle. */
+  #start { container-type: size; }
+  #start::before, #start::after {
+    content: ''; position: absolute; inset: 0; z-index: -1;
+    background:
+      /* warm light behind the seal */
+      radial-gradient(circle at 50% 39%, rgba(255, 248, 240, .7), rgba(255, 248, 240, 0) 32%),
+      url(2.png) right top 44cqh / auto 58cqh no-repeat,
+      /* the set (1.jpg) extended to 9:16 by mirroring its own rug downward, at native scale */
+      #edd8cd url(cover-bg.jpg) center top / cover no-repeat;
+    transition: transform 1.4s cubic-bezier(.65, 0, .35, 1);
+  }
+  #start::before { clip-path: inset(0 50% 0 0); }
+  #start::after  { clip-path: inset(0 0 0 50%); }
+  #start.gone::before { transform: translateX(-50%); }
+  #start.gone::after  { transform: translateX(50%); }
+  /* the Mersal seal: paper disc, thin ring and logo, recoloured in this card's red and gold */
+  #start .open-btn {
+    width: clamp(96px, 26%, 150px); aspect-ratio: 1; border-radius: 50%; padding: 0; cursor: pointer;
+    background: var(--paper); border: 1px solid rgba(184, 147, 90, .35);
+    box-shadow: 0 10px 30px rgba(110, 20, 30, .14), inset 0 0 15px rgba(184, 147, 90, .1);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .9s ease, opacity .9s ease;
+    margin-bottom: 22cqh;   /* lifts the seal to ~39% to make room for the kids */
+  }
+  #start .open-btn .seal {
+    width: 84%; height: 84%; border-radius: 50%; border: 1.5px solid var(--red);
+    display: flex; align-items: center; justify-content: center;
+    animation: pulse 2.6s ease-in-out infinite;
+  }
+  /* the logo file is dark green line art; used as a mask so it takes the card's red */
+  #start .open-btn .logo {
+    width: 76%; aspect-ratio: 480 / 228; background: var(--red);
+    -webkit-mask: url(mersal.webp) center / contain no-repeat; mask: url(mersal.webp) center / contain no-repeat;
+  }
+  #start.gone .open-btn { transform: scale(1.5); opacity: 0; }
+  #start.gone { pointer-events: none; }
+  /* until the seal is tapped: only the cover, no scrolling */
+  body.locked { height: 100svh; overflow: hidden; }
+  body.locked .hero { height: 100svh; align-items: center; }
+  body.locked main, body.locked footer { display: none; }
+  @keyframes pulse { 50% { transform: scale(1.05); } }
+  .pill {
+    font-size: 17px; padding: 7px 20px; border-radius: 999px; cursor: pointer; text-decoration: none;
+    border: 1px solid var(--gold); background: rgba(255,255,255,.75); color: var(--ink);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .pill:hover { background: #fff; }
+  .cal-ico { width: 20px; height: 20px; color: var(--gold); flex: none; }
+  .pill.solid { background: var(--red); border-color: var(--red); color: #fff6ef; }
+  .pill.solid:hover { background: #8a1424; }
+
+  /* ---------- sections ---------- */
+  section {
+    max-width: 560px; margin: 0 auto; padding: 64px 16px; text-align: center;
+  }
+  section + section { border-top: 1px solid var(--line); }
+  .eyebrow {
+    font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 4px; color: var(--gold); direction: ltr;
+  }
+  h2 { font-family: 'Aref Ruqaa', serif; font-size: 40px; font-weight: 700; margin: 6px 0 4px; }
+  .rule { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 10px 0 26px; }
+  .rule i { width: 70px; height: 1px; background: var(--ink); opacity: .55; }
+  .heart { width: 16px; height: 14px; fill: var(--red); flex: none; }
+  .lead { color: var(--muted); font-size: 19px; line-height: 1.8; }
+
+  /* countdown */
+  .countdown { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .unit {
+    padding: 16px 4px 10px;
+  }
+  .unit b {
+    display: block; font-family: 'Cormorant Garamond', serif; font-weight: 600;
+    font-size: clamp(32px, 9vw, 46px); line-height: 1; font-variant-numeric: lining-nums tabular-nums;
+  }
+  .unit span { display: block; margin-top: 6px; font-size: 16px; color: var(--muted); }
+  .when { margin-top: 22px; font-size: 20px; line-height: 1.9; }
+  .when .en {
+    font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 16px; letter-spacing: 2px;
+    font-variant-numeric: lining-nums; direction: ltr; display: block; color: var(--muted);
+  }
+  .done-msg { font-family: 'Aref Ruqaa', serif; font-size: 30px; color: var(--red); }
+
+  /* invitation wording: verse, the two fathers, the invite line */
+  .basmala { font-size: 22px; color: var(--muted); margin-bottom: 14px; }
+  .ayah { font-size: clamp(21px, 5.4vw, 25px); line-height: 2.1; }
+  .ayah cite { display: block; margin-top: 4px; font-style: normal; font-size: 16px; color: var(--gold); }
+  .hosts-intro { margin-top: 30px; font-size: 21px; color: var(--muted); }
+  .hosts { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 14px; margin: 14px 0 22px; }
+  .hosts .host b { display: block; font-family: 'Aref Ruqaa', serif; font-size: clamp(22px, 6vw, 28px); font-weight: 700; }
+  .hosts .host span { display: block; margin-top: 2px; font-size: 16px; color: var(--muted); }
+  .hosts .sep { width: 1px; height: 52px; background: var(--gold); opacity: .6; }
+  .invite-text { font-size: 21px; line-height: 2; }
+  .invite-text .couple { display: block; margin: 8px 0; font-family: 'Aref Ruqaa', serif; font-size: clamp(30px, 8vw, 38px); color: var(--red); }
+
+  /* story album: small polaroids two to a row, tilted alternately; an odd last one sits centred */
+  #story { overflow-x: clip; }
+  .album { display: grid; grid-template-columns: 1fr 1fr; gap: 26px 18px; max-width: 440px; margin: 0 auto; padding-top: 8px; }
+  .photo-frame {
+    position: relative; margin: 0; padding: 7px 7px 10px; background: #fff; border-radius: 3px;
+    box-shadow: 0 10px 24px rgba(60, 40, 30, .15), 0 2px 5px rgba(60, 40, 30, .08);
+    --r: -2deg; rotate: var(--r);
+    opacity: 0; translate: 0 24px; transition: opacity .9s, translate .9s, rotate .4s;
+  }
+  .photo-frame:nth-child(even) { --r: 2deg; transition-delay: .15s; }
+  .photo-frame:last-child:nth-child(odd) { grid-column: 1 / -1; justify-self: center; width: calc(50% - 9px); --r: 1deg; }
+  .photo-frame.in { opacity: 1; translate: none; }
+  .photo-frame:hover { rotate: 0deg; }
+  /* little strip of washi tape holding each photo */
+  .photo-frame::before {
+    content: ''; position: absolute; top: -9px; left: 50%; width: 56px; height: 18px; translate: -50% 0; rotate: -5deg;
+    background: rgba(184, 147, 90, .3); box-shadow: 0 1px 2px rgba(60, 40, 30, .08);
+  }
+  .photo-frame:nth-child(even)::before { rotate: 6deg; }
+  .photo-frame button { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; }
+  /* every card is 4:5; the two tall photos are cropped to the children, the full photo opens on tap */
+  .photo-frame img {
+    display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 2px;
+    object-position: 50% var(--y, 50%);
+  }
+  .photo-frame figcaption { margin-top: 8px; font-family: 'Aref Ruqaa', serif; font-size: 17px; line-height: 1.4; }
+  .photo-frame figcaption small {
+    display: block; font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 2px; color: var(--gold); direction: ltr;
+  }
+  /* full-size photo */
+  #viewer {
+    max-width: none; max-height: none; width: 100%; height: 100%; margin: 0; padding: 16px; border: 0;
+    background: rgba(28, 22, 23, .9); display: flex; align-items: center; justify-content: center; cursor: zoom-out;
+  }
+  #viewer:not([open]) { display: none; }
+  #viewer img { max-width: 100%; max-height: 100%; border-radius: 10px; box-shadow: 0 20px 60px rgba(0, 0, 0, .4); }
+  #viewer::backdrop { background: transparent; }
+  @media (prefers-reduced-motion: reduce) { .photo-frame { transition: none; opacity: 1; translate: none; } }
+
+  /* map */
+  .map {
+    border-radius: 16px; overflow: hidden; border: 1px solid var(--line); background: #fff;
+    box-shadow: 0 6px 18px rgba(60, 40, 30, .06);
+  }
+  .map iframe { display: block; width: 100%; height: 300px; border: 0; }
+  .map-empty {
+    height: 220px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+    color: var(--muted); font-size: 19px;
+    background: repeating-linear-gradient(45deg, #fff, #fff 12px, #faf6f1 12px, #faf6f1 24px);
+  }
+  /* wax-seal coloured pin with a heart, gently bobbing over its shadow */
+  .pin { position: relative; width: 56px; height: 78px; }
+  .pin svg { display: block; width: 56px; height: 70px; filter: drop-shadow(0 6px 8px rgba(110, 20, 30, .28)); animation: bob 2.4s ease-in-out infinite; }
+  .pin i {
+    position: absolute; bottom: 0; left: 50%; width: 26px; height: 7px; margin-left: -13px; border-radius: 50%;
+    background: rgba(60, 40, 30, .22); animation: squash 2.4s ease-in-out infinite;
+  }
+  @keyframes bob { 50% { transform: translateY(-7px); } }
+  @keyframes squash { 50% { transform: scale(.65); opacity: .5; } }
+  @media (prefers-reduced-motion: reduce) { .pin svg, .pin i { animation: none; } }
+  .venue { font-size: 24px; font-weight: 700; margin: 18px 0 14px; }
+
+  /* wishes */
+  form.wish {
+    background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 18px;
+    display: grid; gap: 12px; text-align: right; box-shadow: 0 6px 18px rgba(60, 40, 30, .06);
+  }
+  form.wish label { font-size: 16px; color: var(--muted); display: grid; gap: 4px; }
+  form.wish input, form.wish textarea {
+    width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
+    font-size: 18px; background: var(--paper); outline: none;
+  }
+  form.wish input:focus, form.wish textarea:focus { border-color: var(--gold); background: #fff; }
+  form.wish textarea { min-height: 110px; resize: vertical; line-height: 1.7; }
+  .form-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .form-actions .pill { font-size: 18px; padding: 9px 22px; }
+  .form-actions .pill.whats { border-color: #25a35a; color: #1d7a45; }
+  .status { min-height: 26px; font-size: 16px; color: var(--muted); }
+  .wishes { display: grid; gap: 12px; margin-top: 26px; text-align: right; }
+  .wish-card {
+    background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px;
+    animation: rise .5s ease both;
+  }
+  .wish-card .who { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 18px; }
+  .wish-card .msg { margin-top: 6px; font-size: 18px; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .wish-card time { display: block; margin-top: 6px; font-size: 13px; color: var(--muted); }
+  .empty { color: var(--muted); font-size: 18px; padding: 10px 0; text-align: center; }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } }
+
+  footer {
+    text-align: center; padding: 56px 16px 64px; margin-top: 24px;
+    background: linear-gradient(to bottom, transparent, rgba(184, 147, 90, .08));
+  }
+  footer .blessing { font-size: 22px; color: var(--muted); margin-bottom: 18px; }
+  footer .names {
+    display: flex; align-items: center; justify-content: center; gap: 18px;
+    font-family: 'Cinzel', serif; font-size: clamp(26px, 6vw, 38px); letter-spacing: 5px; direction: ltr; color: var(--ink);
+  }
+  footer .names .heart { width: 20px; height: 18px; }
+  footer .date {
+    display: inline-block; margin-top: 18px; padding: 6px 22px;
+    border: 1px solid rgba(184, 147, 90, .55); border-radius: 999px;
+    font-size: 20px; color: var(--ink); letter-spacing: 1px;
+  }
+  footer .thanks { font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 4px; color: var(--gold); margin-top: 28px; direction: ltr; }
+
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s, transform .8s; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; } }
+</style>
+</head>
+<body class="locked">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="h" viewBox="0 0 24 22"><path d="M12 21 C 4 14, 0 10, 0 6 A 6 6 0 0 1 12 4 A 6 6 0 0 1 24 6 C 24 10, 20 14, 12 21 Z"/></symbol>
+</svg>
+
+<header class="hero">
+  <div id="card">
+    <!-- proposal.mp4 = the photo animated by an AI video tool; the poster photo shows until it loads -->
+    <video class="photo" id="clip" src="proposal.mp4" poster="proposal.jpg" muted playsinline loop preload="auto"></video>
+    <div id="stage" aria-label="You are invited to the wedding of Saleh and Shatha, Sunday 15 November 2026">
+      <div class="t small" style="top:58px; --i:0">YOU ARE INVITED<br>TO THE WEDDING OF</div>
+      <div class="t big" style="top:140px; --i:1">SALEH</div>
+      <div class="rule" style="top:210px; --i:2"><i style="width:110px"></i><svg class="heart"><use href="#h"/></svg><i style="width:110px"></i></div>
+      <div class="t big" style="top:238px; --i:3">SHATHA</div>
+      <div class="row ar" style="top:308px; font-size:28px; letter-spacing:0; gap:12px; --i:4">
+        <svg class="heart" style="width:20px;height:18px"><use href="#h"/></svg><span dir="rtl">صالح وشذا</span><svg class="heart" style="width:20px;height:18px"><use href="#h"/></svg>
+      </div>
+      <div class="row" style="top:1022px; --i:5">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1c1617" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M7 13h2M11 13h2M15 13h2M7 17h2M11 17h2M15 17h2" stroke-width="2"/></svg>
+        <span>15 NOVEMBER 2026</span>
+      </div>
+      <div class="rule" style="top:1070px; --i:6"><i style="width:110px"></i></div>
+      <div class="row" style="top:1088px; --i:6">
+        <span>SUNDAY</span><span style="opacity:.5">|</span><span class="ar" style="letter-spacing:0; font-size:27px">يوم الأحد</span>
+      </div>
+      <div class="rule" style="top:1136px; --i:7"><i style="width:110px"></i></div>
+      <div class="row ar" style="top:1150px; font-size:27px; letter-spacing:0; --i:7" dir="rtl">وبحضوركم يكتمل فرحنا</div>
+      <div class="rule" style="top:1208px; --i:8"><i style="width:80px"></i><svg class="heart"><use href="#h"/></svg><i style="width:80px"></i></div>
+    </div>
+    <audio id="music" src="saleh-shatha.mp4" preload="auto"></audio>
+    <div id="start"><button type="button" class="open-btn" aria-label="افتح الدعوة"><span class="seal" aria-hidden="true"><span class="logo"></span></span></button></div>
+  </div>
+</header>
+
+<main>
+  <!-- invitation wording -->
+  <section id="invite" class="reveal">
+    <p class="basmala">بسم الله الرحمن الرحيم</p>
+    <p class="ayah">
+      ﴿ وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ﴾
+      <cite>سورة الروم — الآية ٢١</cite>
+    </p>
+    <div class="rule"><i></i><svg class="heart"><use href="#h"/></svg><i></i></div>
+    <p class="hosts-intro">يتشرّف</p>
+    <div class="hosts">
+      <div class="host"><b>عبدالله السالم</b><span>والد العريس</span></div>
+      <div class="sep"></div>
+      <div class="host"><b>جمال المصري</b><span>والد العروس</span></div>
+    </div>
+    <p class="invite-text">
+      بدعوتكم لتشريف حفل زفاف نجلَيهما
+      <span class="couple">صالح &amp; شذا</span>
+      راجين من الله أن يجعله زواجاً مباركاً،<br>
+      فحضوركم يزيدنا فرحاً وشرفاً
+    </p>
+  </section>
+
+  <!-- countdown -->
+  <section id="countdown" class="reveal">
+    <div class="eyebrow">SAVE THE DATE</div>
+    <h2>العد التنازلي</h2>
+    <div class="rule"><i></i><svg class="heart"><use href="#h"/></svg><i></i></div>
+    <div class="countdown" id="cd">
+      <div class="unit"><b data-u="d">0</b><span>يوم</span></div>
+      <div class="unit"><b data-u="h">0</b><span>ساعة</span></div>
+      <div class="unit"><b data-u="m">0</b><span>دقيقة</span></div>
+      <div class="unit"><b data-u="s">0</b><span>ثانية</span></div>
+    </div>
+    <p class="done-msg" id="cd-done" hidden>تمّ الزفاف، ألف مبروك</p>
+    <p class="when">
+      يوم الأحد ١٥ نوفمبر ٢٠٢٦ — الساعة ٧:٠٠ مساءً
+      <span class="en">SUNDAY · 15 NOVEMBER 2026 · 7:00 PM</span>
+    </p>
+    <p style="margin-top:18px"><a class="pill" id="cal" target="_blank" rel="noopener"><svg class="cal-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><use href="#h" x="9" y="12.2" width="6" height="5.5" fill="var(--red)" stroke="none"/></svg>أضف إلى التقويم</a></p>
+  </section>
+
+  <!-- photo -->
+  <section id="story" class="reveal">
+    <div class="eyebrow">OUR STORY</div>
+    <h2>بداية الحكاية</h2>
+    <div class="rule"><i></i><svg class="heart"><use href="#h"/></svg><i></i></div>
+    <div class="album" id="album">
+      <figure class="photo-frame">
+        <button type="button"><img src="story-1.jpg" alt="طفلان يقرآن كتاباً معاً" loading="lazy"></button>
+        <figcaption><small>01</small>حكايتنا بدأت هنا</figcaption>
+      </figure>
+      <figure class="photo-frame">
+        <button type="button"><img src="story-2.jpg" alt="طفل يقدّم وردة بيضاء لطفلة" loading="lazy"></button>
+        <figcaption><small>02</small>أول وردة</figcaption>
+      </figure>
+      <figure class="photo-frame">
+        <button type="button"><img src="story-3.jpg" alt="طفل يقدّم خاتماً لطفلة بين الزهور البيضاء" loading="lazy" style="--y:57%"></button>
+        <figcaption><small>03</small>وقالت نعم</figcaption>
+      </figure>
+      <figure class="photo-frame">
+        <button type="button"><img src="story-4.jpg" alt="طفلان يمسكان بيدي بعضهما تحت قوس من الزهور" loading="lazy"></button>
+        <figcaption><small>04</small>قلبان ودرب واحد</figcaption>
+      </figure>
+      <figure class="photo-frame">
+        <button type="button"><img src="story-5.jpg" alt="طفلان بأزياء الزفاف وسط الزهور" loading="lazy" style="--y:36%"></button>
+        <figcaption><small>05</small>وموعدنا ١٥ نوفمبر</figcaption>
+      </figure>
+    </div>
+    <dialog id="viewer"><img alt=""></dialog>
+  </section>
+
+  <!-- map -->
+  <section id="location" class="reveal">
+    <div class="eyebrow">LOCATION</div>
+    <h2>موقع الحفل</h2>
+    <div class="rule"><i></i><svg class="heart"><use href="#h"/></svg><i></i></div>
+    <div class="map" id="map"></div>
+    <p class="venue" id="venue"></p>
+    <a class="pill solid" id="directions" target="_blank" rel="noopener" hidden>فتح الموقع في خرائط جوجل</a>
+  </section>
+
+  <!-- wishes -->
+  <section id="wishes" class="reveal">
+    <div class="eyebrow">WISHES</div>
+    <h2>التهاني والمباركات</h2>
+    <div class="rule"><i></i><svg class="heart"><use href="#h"/></svg><i></i></div>
+    <p class="lead" style="margin-bottom:22px">شاركونا فرحتنا واكتبوا لنا كلمة نحتفظ بها للأبد</p>
+    <form class="wish" id="wish-form">
+      <label>الاسم<input name="name" maxlength="60" required autocomplete="name"></label>
+      <label>التهنئة<textarea name="message" maxlength="500" required placeholder="ألف مبروك، بارك الله لكما وبارك عليكما وجمع بينكما في خير…"></textarea></label>
+      <div class="form-actions">
+        <button class="pill solid" type="submit">إرسال التهنئة <svg class="heart" style="fill:#fff6ef"><use href="#h"/></svg></button>
+        <button class="pill whats" type="button" id="whats" hidden>إرسال عبر واتساب</button>
+      </div>
+      <div class="status" id="status" role="status"></div>
+    </form>
+    <div class="wishes" id="wish-list"></div>
+  </section>
+</main>
+
+<footer>
+  <div class="blessing">بارك الله لهما وبارك عليهما وجمع بينهما في خير</div>
+  <div class="names">SALEH <svg class="heart"><use href="#h"/></svg> SHATHA</div>
+  <div class="date">صالح وشذا · ١٥ / ١١ / ٢٠٢٦</div>
+  <div class="thanks">WITH LOVE &amp; GRATITUDE</div>
+</footer>
+
+<script>
+/* ================= settings — edit these ================= */
+const CONFIG = {
+  // Party start, in the guest's local time: year, month (1-12), day, hour (24h), minute
+  event: [2026, 11, 15, 19, 0],
+  venueName: '',        // e.g. 'قاعة الماسة'
+  mapsUrl: '',          // Google Maps share link, e.g. 'https://maps.app.goo.gl/...'
+  mapQuery: '',         // what the embedded map shows, e.g. 'قاعة الماسة، عمّان' or '31.95,35.91'
+  whatsapp: '',         // couple's number in international format, digits only, e.g. '9627XXXXXXXX'
+  sheetsUrl: '',        // Google Apps Script web-app URL (see wishes-google-script.gs)
+};
+/* ========================================================= */
+
+/* ---------- hero card ---------- */
+const card = document.getElementById('card');
+const stage = document.getElementById('stage');
+const music = document.getElementById('music');
+const start = document.getElementById('start');
+const clip = document.getElementById('clip');
+// Until proposal.mp4 loads (or if it fails), keep the poster photo and animate it with a slow zoom.
+card.classList.add('still');
+clip.addEventListener('loadeddata', () => card.classList.remove('still'));
+// The text layout is drawn at 720x1280; scale it to whatever size the card is.
+new ResizeObserver(() => { stage.style.transform = `scale(${card.clientWidth / 720})`; }).observe(card);
+// Browsers block autoplay with sound, so the invitation opens on a tap.
+// The clip holds on its first frame for a moment before it starts moving.
+const CLIP_HOLD = 2000;
+let clipTimer;
+const playFromStart = () => {
+  card.classList.add('play'); clip.pause(); clip.currentTime = 0;
+  clearTimeout(clipTimer); clipTimer = setTimeout(() => clip.play().catch(() => {}), CLIP_HOLD);
+  music.currentTime = 0; music.play().catch(() => {});
+};
+// Always open on the sealed cover, never at a scroll position remembered from a reload.
+history.scrollRestoration = 'manual';
+scrollTo(0, 0);
+start.onclick = () => { start.classList.add('gone'); document.body.classList.remove('locked'); playFromStart(); };
+
+/* ---------- reveal on scroll ---------- */
+const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add('in')), { threshold: .15 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+/* ---------- story album ---------- */
+(function () {
+  const viewer = document.getElementById('viewer');
+  const big = viewer.querySelector('img');
+  const cards = document.querySelectorAll('#album .photo-frame');
+  // each photo drops in on its own as it scrolls into view
+  const seen = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add('in')), { threshold: .2 });
+  cards.forEach(c => {
+    seen.observe(c);
+    const img = c.querySelector('img');
+    c.querySelector('button').onclick = () => { big.src = img.src; big.alt = img.alt; viewer.showModal(); };
+  });
+  viewer.onclick = () => viewer.close();
+})();
+
+/* ---------- countdown ---------- */
+const [Y, Mo, D, Hh, Mi] = CONFIG.event;
+const target = new Date(Y, Mo - 1, D, Hh, Mi);
+const cdEls = {};
+document.querySelectorAll('#cd b').forEach(b => cdEls[b.dataset.u] = b);
+function tick() {
+  let s = Math.max(0, Math.floor((target - Date.now()) / 1000));
+  if (s === 0) {
+    document.getElementById('cd').hidden = true;
+    document.getElementById('cd-done').hidden = false;
+    return;
+  }
+  const v = { d: Math.floor(s / 86400), h: Math.floor(s / 3600) % 24, m: Math.floor(s / 60) % 60, s: s % 60 };
+  for (const k in v) {
+    const txt = k === 'd' ? String(v[k]) : String(v[k]).padStart(2, '0');
+    if (cdEls[k].textContent !== txt) cdEls[k].textContent = txt;
+  }
+  setTimeout(tick, 1000 - (Date.now() % 1000));
+}
+tick();
+
+// Google Calendar link (3-hour event)
+(function () {
+  const pad = n => String(n).padStart(2, '0');
+  const fmt = d => `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+  const end = new Date(target.getTime() + 3 * 3600e3);
+  const p = new URLSearchParams({
+    action: 'TEMPLATE', text: 'زفاف صالح وشذا', dates: `${fmt(target)}/${fmt(end)}`,
+    details: 'نتشرف بحضوركم حفل زفاف صالح وشذا', location: CONFIG.venueName || CONFIG.mapQuery,
+  });
+  document.getElementById('cal').href = 'https://calendar.google.com/calendar/render?' + p;
+})();
+
+/* ---------- map ---------- */
+(function () {
+  const map = document.getElementById('map');
+  const venue = document.getElementById('venue');
+  const dir = document.getElementById('directions');
+  if (CONFIG.mapQuery || CONFIG.mapsUrl) {
+    const q = CONFIG.mapQuery || CONFIG.venueName;
+    if (q) {
+      const f = document.createElement('iframe');
+      f.loading = 'lazy'; f.referrerPolicy = 'no-referrer-when-downgrade'; f.title = 'موقع الحفل';
+      f.src = 'https://maps.google.com/maps?q=' + encodeURIComponent(q) + '&z=15&output=embed';
+      map.appendChild(f);
+    }
+    dir.href = CONFIG.mapsUrl || 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
+    dir.hidden = false;
+  }
+  if (!map.children.length) {
+    map.innerHTML = '<div class="map-empty"><div class="pin" aria-hidden="true"><svg viewBox="0 0 48 60">'
+      + '<defs><radialGradient id="pin-g" cx="35%" cy="28%" r="75%"><stop offset="0" stop-color="#c43a4b"/><stop offset="1" stop-color="#8a1424"/></radialGradient></defs>'
+      + '<path d="M24 58S7 41.5 7 24a17 17 0 0 1 34 0c0 17.5-17 34-17 34Z" fill="url(#pin-g)"/>'
+      + '<circle cx="24" cy="24" r="10.5" fill="#f6e7d0"/><circle cx="24" cy="24" r="12.5" fill="none" stroke="#b8935a" stroke-width="1"/>'
+      + '<use href="#h" x="18" y="18.8" width="12" height="11" fill="#a3192b"/>'
+      + '</svg><i></i></div>سيتم إضافة موقع الحفل قريباً</div>';
+  }
+  venue.textContent = CONFIG.venueName || '';
+  venue.hidden = !CONFIG.venueName;
+})();
+
+/* ---------- wishes ---------- */
+const list = document.getElementById('wish-list');
+const form = document.getElementById('wish-form');
+const status = document.getElementById('status');
+const LOCAL_KEY = 'saleh-shatha-wishes';
+
+function readLocal() { try { return JSON.parse(localStorage.getItem(LOCAL_KEY)) || []; } catch { return []; } }
+function writeLocal(arr) { try { localStorage.setItem(LOCAL_KEY, JSON.stringify(arr)); } catch {} }
+
+function renderWishes(items) {
+  list.replaceChildren();
+  if (!items.length) {
+    const p = document.createElement('p'); p.className = 'empty';
+    p.textContent = 'كونوا أول من يبارك للعروسين';
+    list.appendChild(p); return;
+  }
+  for (const w of items) {
+    const card = document.createElement('article'); card.className = 'wish-card';
+    const who = document.createElement('div'); who.className = 'who';
+    who.innerHTML = '<svg class="heart"><use href="#h"/></svg>';
+    who.append(String(w.name || ''));
+    const msg = document.createElement('div'); msg.className = 'msg'; msg.textContent = String(w.message || '');
+    card.append(who, msg);
+    const d = w.time ? new Date(w.time) : null;
+    if (d && !isNaN(d)) {
+      const t = document.createElement('time');
+      t.textContent = d.toLocaleDateString('ar', { day: 'numeric', month: 'long', year: 'numeric' });
+      card.appendChild(t);
+    }
+    list.appendChild(card);
+  }
+}
+
+async function loadWishes() {
+  if (!CONFIG.sheetsUrl) return renderWishes(readLocal());
+  try {
+    const res = await fetch(CONFIG.sheetsUrl, { cache: 'no-store' });
+    renderWishes(await res.json());
+  } catch {
+    list.innerHTML = '<p class="empty">تعذّر تحميل التهاني الآن، حاول لاحقاً</p>';
+  }
+}
+
+form.onsubmit = async e => {
+  e.preventDefault();
+  const name = form.elements.name.value.trim(), message = form.elements.message.value.trim();
+  if (!name || !message) return;
+  const btn = form.querySelector('[type=submit]');
+  btn.disabled = true; status.textContent = 'جاري الإرسال…';
+  try {
+    if (CONFIG.sheetsUrl) {
+      // text/plain avoids a CORS preflight, which Apps Script doesn't answer.
+      const res = await fetch(CONFIG.sheetsUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ name, message }) });
+      const out = await res.json();
+      if (!out.ok) throw new Error();
+      await loadWishes();
+    } else {
+      const arr = readLocal(); arr.unshift({ name, message, time: new Date().toISOString() });
+      writeLocal(arr); renderWishes(arr);
+    }
+    form.elements.message.value = '';
+    status.textContent = 'شكراً لكم، وصلت تهنئتكم 🤍';
+  } catch {
+    status.textContent = 'لم يتم الإرسال، حاول مرة أخرى';
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+// WhatsApp: opens a chat with the couple, message pre-filled.
+const whats = document.getElementById('whats');
+if (CONFIG.whatsapp) {
+  whats.hidden = false;
+  whats.onclick = () => {
+    const name = form.elements.name.value.trim(), message = form.elements.message.value.trim();
+    if (!message) { form.elements.message.focus(); status.textContent = 'اكتب التهنئة أولاً'; return; }
+    const text = `${message}${name ? '\n— ' + name : ''}`;
+    window.open('https://wa.me/' + CONFIG.whatsapp.replace(/\D/g, '') + '?text=' + encodeURIComponent(text), '_blank', 'noopener');
+  };
+}
+
+loadWishes();
+</script>
+</body>
+</html>
