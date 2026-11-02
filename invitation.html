@@ -18,7 +18,10 @@
     /* cards (map, notes, form, wishes) share one shape */
     --radius: 16px; --shadow: 0 6px 18px rgba(60, 40, 30, .06);
   }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  /* no native play button over the cover video (Android shows one when autoplay is held back) */
+  video::-webkit-media-controls, video::-webkit-media-controls-overlay-play-button,
+  video::-webkit-media-controls-start-playback-button { display: none !important; -webkit-appearance: none; }
   html { scroll-behavior: smooth; }
   /* slim gold scrollbar to match the card; Firefox gets the standard properties
      (kept out of Chrome, where they would override the ::-webkit-scrollbar rules) */
