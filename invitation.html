@@ -4,13 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>زفاف صالح وشذا</title>
+<link rel="icon" type="image/png" href="mersal-favicon.png">
+<link rel="apple-touch-icon" href="mersal-favicon.png">
 <link rel="preload" href="fonts/amiri-400-arabic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/aref-ruqaa-700-arabic.woff2" as="font" type="font/woff2" crossorigin>
 <link href="fonts/fonts.css" rel="stylesheet">
 <style>
   :root {
     --ink: #1c1617; --muted: #6d6260; --red: #a3192b; --cream: #e6d8c4;
-    --paper: #f7f2ec; --gold: #b8935a; --line: rgba(60, 45, 40, .18); --bg: #e2d8cd;
+    --paper: #f7f2ec; --gold: #b8935a; --line: rgba(60, 45, 40, .18); --bg: #e9dcca;
     /* type scale: every text size on the page comes from these */
     --fs-xs: 14px; --fs-sm: 16px; --fs-ui: 18px; --fs-body: 20px; --fs-lg: 22px;
     /* cards (map, notes, form, wishes) share one shape */
@@ -18,6 +20,18 @@
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
+  /* slim gold scrollbar to match the card; Firefox gets the standard properties
+     (kept out of Chrome, where they would override the ::-webkit-scrollbar rules) */
+  @supports not selector(::-webkit-scrollbar) {
+    html { scrollbar-width: thin; scrollbar-color: var(--gold) var(--paper); }
+  }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--paper); }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(var(--gold), #9a7745); border-radius: 8px;
+    border: 2px solid var(--paper);
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--red); }
   body {
     background: var(--bg); color: var(--ink); font-family: 'Amiri', serif;
     -webkit-font-smoothing: antialiased;
@@ -25,7 +39,7 @@
   /* one fixed copy of the texture behind everything: no tiling seams, and works on iOS (unlike background-attachment: fixed) */
   body::before {
     content: ''; position: fixed; inset: 0; z-index: -1;
-    background: var(--bg) url(bg.jpg) center / cover no-repeat;
+    background: var(--bg) url(bg-video.jpg?v=2) center / cover no-repeat;
   }
   button, input, textarea { font: inherit; color: inherit; }
   [hidden] { display: none !important; }
@@ -36,18 +50,20 @@
     position: relative; aspect-ratio: 9 / 16;
     height: min(120svh, calc(100vw * 16 / 9));
     background: var(--cream);
-    box-shadow: 0 20px 60px rgba(60, 40, 30, .25); overflow: hidden;
+    overflow: hidden;
+  }
+  /* phones taller than 9:16 (most are ~20:9): the card keeps the clip's 9:16 shape so the whole
+     clip shows with no cream bands; it sits at the top and the page background shows below it */
+  @media (max-aspect-ratio: 9/16) {
+    body.locked header.hero { align-items: flex-start; }
   }
   #card .photo {
     position: absolute; left: 0; width: 100%; display: block; object-fit: contain;
-    /* fills the whole card now that there are no names above it; every edge fades into the
-       cream card, and the bottom fade also hides the video tool's watermark in the lower corner */
+    /* fills the whole card top to bottom with no fades */
     top: 0; height: 100%;
     /* the clip spans the full card width, so the side fades stay thin to keep off the children */
-    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 85%, transparent 94%), linear-gradient(to right, transparent, #000 4%, #000 96%, transparent);
-    -webkit-mask-composite: source-in;
-    mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 85%, transparent 94%), linear-gradient(to right, transparent, #000 4%, #000 96%, transparent);
-    mask-composite: intersect;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent);
     transform-origin: 55% 62%;
     /* warms the photo's grey-pink backdrop to the cover's cream wall (#e6d8c4) */
     filter: sepia(.16) brightness(.96);
@@ -55,13 +71,6 @@
   /* slow zoom only while showing the still photo; a real clip carries its own motion */
   #card.play.still .photo { animation: kenburns 20s ease-in-out infinite alternate; }
   @keyframes kenburns { from { transform: scale(1); } to { transform: scale(1.09) translateY(-1.5%); } }
-  /* soft glow behind the text so it stays readable over the flowers */
-  #card::after {
-    content: ''; position: absolute; inset: 0; pointer-events: none;
-    background:
-      radial-gradient(60% 17% at 50% 14%, rgba(240, 230, 214, .8), transparent),
-      radial-gradient(60% 13% at 50% 89%, rgba(240, 230, 214, .85), transparent);
-  }
   /* 720x1280 design stage (same layout as overlay.html), scaled to the card by JS */
   #stage { position: absolute; top: 0; left: 0; width: 720px; height: 1280px; transform-origin: 0 0; z-index: 1; }
   #stage .t { position: absolute; left: 0; right: 0; text-align: center; color: var(--ink); }
@@ -266,8 +275,8 @@
   /* tint Google's map toward the paper palette; the pin and chip sit on top in full colour */
   .map iframe { display: block; width: 100%; height: 300px; border: 0; filter: grayscale(.9) sepia(.18) contrast(.96) brightness(1.03); }
   .map::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: rgba(163, 25, 43, .035); box-shadow: inset 0 0 0 1px rgba(255,255,255,.5); border-radius: inherit; }
-  /* our pin's tip lands on the map centre, covering Google's marker */
-  .map-pin { position: absolute; left: 50%; top: 50%; width: 48px; height: 60px; margin: -60px 0 0 -24px; pointer-events: none; z-index: 1; filter: drop-shadow(0 6px 8px rgba(110, 20, 30, .3)); }
+  /* our pin is a little bigger than Google's marker and its tip dips just past the map centre, so it hides it completely */
+  .map-pin { position: absolute; left: 50%; top: 50%; width: 56px; height: 70px; margin: -63px 0 0 -28px; pointer-events: none; z-index: 1; filter: drop-shadow(0 6px 8px rgba(110, 20, 30, .3)); }
   .map-pin svg { display: block; width: 100%; height: 100%; }
   .map-chip {
     position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 1; max-width: calc(100% - 32px);
@@ -276,6 +285,25 @@
     box-shadow: 0 4px 12px rgba(110, 20, 30, .28);
   }
   .map-chip svg { width: 16px; height: 16px; flex: none; }
+  /* our own place card, laid over Google's (which names the mall, not the hall) and sized to hide it */
+  .map-card {
+    position: absolute; top: 8px; left: 8px; z-index: 2; width: 272px; min-height: 134px; box-sizing: border-box;
+    display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 8px; text-align: right;
+    background: #fff; color: #3a2a2c; box-shadow: 0 2px 8px rgba(0, 0, 0, .18);
+  }
+  .map-card b { font-size: 1.05rem; color: var(--red); }
+  .map-card span { font-size: var(--fs-sm); color: #7a6a6c; }
+  .map-card a {
+    margin-top: auto; align-self: flex-end; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px;
+    background: var(--red); color: #fff6ef; font-size: var(--fs-sm); font-weight: 700; text-decoration: none;
+  }
+  .map-card a svg { width: 14px; height: 14px; flex: none; }
+  /* on phones Google shrinks its card to a small button, so ours shrinks too and keeps clear of the pin */
+  @media (max-width: 560px) {
+    .map-card { width: auto; max-width: calc(50% - 30px); min-height: 0; padding: 8px 10px; }
+    .map-card span { display: none; }
+    .map-card a { padding: 4px 10px; font-size: .75rem; }
+  }
   .map-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
   .map-actions .pill { padding: 10px 14px; white-space: nowrap; }
   .map-actions .pill.solid { background: linear-gradient(135deg, #b8304a, #8a1424); color: #fff6ef; }
@@ -322,16 +350,64 @@
   .form-actions { display: flex; gap: 10px; flex-wrap: wrap; }
   .form-actions .pill.whats { border-color: #25a35a; color: #1d7a45; }
   .status { min-height: 26px; font-size: var(--fs-sm); color: var(--muted); }
-  .wishes { display: grid; gap: 12px; margin-top: 26px; text-align: right; }
-  .wish-card {
-    background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 18px;
-    box-shadow: var(--shadow); animation: rise .5s ease both;
+  /* wishes ride a sideways strip of taped notes, in the same paper style as the story album */
+  .wishes {
+    display: flex; align-items: stretch; gap: 18px; margin: 26px -16px 0; padding: 20px 24px 24px;
+    overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+            mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent);
   }
-  .wish-card .who { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: var(--fs-ui); }
-  .wish-card .msg { margin-top: 6px; font-size: var(--fs-ui); line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
-  .wish-card time { display: block; margin-top: 6px; font-size: var(--fs-xs); color: var(--muted); }
-  .empty { color: var(--muted); font-size: var(--fs-ui); padding: 10px 0; text-align: center; }
+  .wishes::-webkit-scrollbar { display: none; }
+  .wish-card {
+    position: relative; flex: 0 0 min(72%, 260px); scroll-snap-align: center;
+    display: flex; flex-direction: column; padding: 20px 16px 14px; background: #fff; border-radius: 3px;
+    box-shadow: 0 10px 24px rgba(60, 40, 30, .15), 0 2px 5px rgba(60, 40, 30, .08);
+    --r: -2deg; rotate: var(--r); transition: rotate .4s; animation: rise .5s ease both;
+  }
+  .wish-card:nth-child(even) { --r: 2deg; }
+  /* a lone wish sits centred; once the row overflows these margins collapse to nothing */
+  .wish-card:first-child { margin-inline-start: auto; }
+  .wish-card:last-child { margin-inline-end: auto; }
+  .wish-card:hover { rotate: 0deg; }
+  .wish-card::before {
+    content: ''; position: absolute; top: -9px; left: 50%; width: 56px; height: 18px; translate: -50% 0; rotate: -5deg;
+    background: rgba(184, 147, 90, .3); box-shadow: 0 1px 2px rgba(60, 40, 30, .08);
+  }
+  .wish-card:nth-child(even)::before { rotate: 6deg; }
+  .wish-card .who {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    font-family: 'Aref Ruqaa', serif; font-size: var(--fs-ui); color: var(--red); line-height: 1.4;
+  }
+  .wish-card .msg { flex: 1; margin-top: 8px; font-size: var(--fs-ui); line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .wish-card time { display: block; margin-top: 10px; font-family: 'Amiri', serif; font-size: var(--fs-xs); color: var(--gold); }
+  .empty { flex: 1; color: var(--muted); font-size: var(--fs-ui); padding: 10px 0; text-align: center; }
   @keyframes rise { from { opacity: 0; transform: translateY(10px); } }
+
+  /* thank-you popup after a wish is sent: paper card with a gold inner frame */
+  .thanks-pop {
+    position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px;
+    background: rgba(28, 22, 23, .45); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+    opacity: 0; visibility: hidden; transition: opacity .35s, visibility .35s;
+  }
+  .thanks-pop.open { opacity: 1; visibility: visible; }
+  .thanks-pop .card {
+    position: relative; width: min(340px, 100%); padding: 40px 28px 28px; text-align: center;
+    background: var(--paper); border-radius: 18px; box-shadow: 0 24px 60px rgba(28, 22, 23, .3);
+    transform: translateY(16px) scale(.96); transition: transform .45s cubic-bezier(.2, .9, .3, 1.2);
+  }
+  .thanks-pop.open .card { transform: none; }
+  .thanks-pop .card::before {
+    content: ''; position: absolute; inset: 8px; border: 1px solid rgba(184, 147, 90, .55); border-radius: 12px; pointer-events: none;
+  }
+  .thanks-pop .heart { display: block; margin: 0 auto; width: 40px; height: 36px; }
+  .thanks-pop.open .heart { animation: pulse 1.4s ease-in-out .4s 2; }
+  .thanks-pop h3 { font-family: 'Aref Ruqaa', serif; font-size: 32px; font-weight: 700; color: var(--red); margin: 12px 0 4px; }
+  .thanks-pop p { font-size: var(--fs-body); color: var(--muted); line-height: 1.8; margin: 0; }
+  .thanks-pop .sig { margin-top: 10px; font-family: 'Great Vibes', cursive; font-size: 30px; color: var(--gold); direction: ltr; }
+  .thanks-pop button {
+    margin-top: 20px; padding: 10px 34px; border: 0; border-radius: 999px; cursor: pointer;
+    background: var(--red); color: #fff; font-family: 'Amiri', serif; font-size: var(--fs-ui);
+  }
 
   footer {
     text-align: center; padding: 56px 16px 64px; margin-top: 24px;
@@ -350,6 +426,12 @@
     letter-spacing: 3px; direction: ltr; color: var(--ink);
   }
   footer .thanks { font-family: 'Cinzel', serif; font-weight: 500; font-size: 13px; letter-spacing: 4px; color: var(--gold); margin-top: 28px; direction: ltr; }
+  /* Mersal credit, set off from the card by a short gold rule */
+  footer .credit { margin-top: 40px; padding-top: 22px; border-top: 1px solid rgba(184, 147, 90, .35); max-width: 260px; margin-inline: auto; }
+  footer .credit .tagline { font-size: var(--fs-ui); color: var(--muted); line-height: 1.8; }
+  footer .credit .by { margin-top: 6px; font-size: var(--fs-xs); color: var(--muted); }
+  footer .credit .by strong { color: var(--red); font-weight: 700; }
+  footer .credit .by a { color: var(--gold); text-decoration: none; direction: ltr; unicode-bidi: isolate; margin-inline-start: 6px; }
 
   .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s, transform .8s; }
   .reveal.in { opacity: 1; transform: none; }
@@ -364,7 +446,7 @@
 <header class="hero">
   <div id="card">
     <!-- proposal.mp4 = the photo animated by an AI video tool; the poster photo shows until it loads -->
-    <video class="photo" id="clip" src="proposal.mp4" poster="proposal.jpg" muted playsinline loop preload="auto"></video>
+    <video class="photo" id="clip" src="proposal.mp4?v=2" poster="proposal.jpg?v=2" muted playsinline loop preload="auto"></video>
     <div id="stage" aria-label="Saleh and Shatha">
       <div class="script" style="top:70px; --i:0">Saleh <span class="amp">&amp;</span> Shatha</div>
     </div>
@@ -470,8 +552,9 @@
     <h2>ملاحظات</h2>
     <div class="rule"><i></i><svg class="heart"><use href="#h"/></svg><i></i></div>
     <ul class="notes">
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 18.5h3"/><path d="M3 3l18 18" stroke="var(--red)" stroke-width="2"/></svg>ممنوع التصوير بالجوال</li>
       <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V10l7-6 7 6v11"/><path d="M10 21v-6h4v6"/></svg>التوجّه إلى الصالة مباشرة</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 18.5h3"/><path d="M3 3l18 18" stroke="var(--red)" stroke-width="2"/></svg>ممنوع التصوير بالجوال</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="6" r="2.5"/><path d="M12 9v6M8.5 12h7M12 15l-2.5 5M12 15l2.5 5"/><path d="M3 3l18 18" stroke="var(--red)" stroke-width="2"/></svg>نعتذر عن عدم اصطحاب الأطفال</li>
     </ul>
   </section>
 
@@ -499,7 +582,21 @@
   <div class="names">Saleh <span class="amp">&amp;</span> Shatha</div>
   <div class="date">SUNDAY · 15 · 11 · 2026</div>
   <div class="thanks">WITH LOVE &amp; GRATITUDE</div>
+  <div class="credit">
+    <div class="tagline">لكل مناسبة، رسالة تستحق أن تصل</div>
+    <div class="by">بواسطة <strong>مرسال</strong> <a href="https://instagram.com/mersal.invites" target="_blank" rel="noopener">@mersal.invites</a></div>
+  </div>
 </footer>
+
+<div class="thanks-pop" id="thanks-pop" role="dialog" aria-modal="true" aria-labelledby="thanks-title" hidden>
+  <div class="card">
+    <svg class="heart" aria-hidden="true"><use href="#h"/></svg>
+    <h3 id="thanks-title">شكراً لكم</h3>
+    <p>وصلت تهنئتكم، ودعواتكم الطيبة تسعدنا</p>
+    <div class="sig">Saleh &amp; Shatha</div>
+    <button type="button" id="thanks-close">حياكم الله</button>
+  </div>
+</div>
 
 <script>
 /* ================= settings — edit these ================= */
@@ -510,7 +607,7 @@ const CONFIG = {
   mapsUrl: '',          // Google Maps share link, e.g. 'https://maps.app.goo.gl/...'
   mapQuery: 'Evento Panda Mall دوار حيدر',
   whatsapp: '',         // couple's number in international format, digits only, e.g. '9627XXXXXXXX'
-  sheetsUrl: '',        // Google Apps Script web-app URL (see wishes-google-script.gs)
+  sheetsUrl: 'https://script.google.com/macros/s/AKfycbwWDYJvJHOhg4SaQqnSvwCwnrvKh8-CD6Xe__P24qsOsuj0grBj2cpjekyWkBp_YtSg8w/exec',        // Google Apps Script web-app URL (see wishes-google-script.gs)
 };
 /* ========================================================= */
 
@@ -611,6 +708,18 @@ tick();
       map.appendChild(f);
       map.insertAdjacentHTML('beforeend', '<div class="map-pin" aria-hidden="true">' + PIN + '</div>');
       if (CONFIG.venueName) {
+        // "صالة Evento · عند باندا مول، دوار حيدر" → hall name on top, the landmark under it
+        const [hall, near] = CONFIG.venueName.split(' · ');
+        const card = document.createElement('div');
+        card.className = 'map-card';
+        const b = document.createElement('b'); b.textContent = hall; card.appendChild(b);
+        if (near) { const s = document.createElement('span'); s.textContent = near + ' · غزة'; card.appendChild(s); }
+        const a = document.createElement('a');
+        a.href = CONFIG.mapsUrl || 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
+        a.target = '_blank'; a.rel = 'noopener';
+        a.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>افتح في خرائط Google';
+        card.appendChild(a);
+        map.appendChild(card);
         const chip = document.createElement('div');
         chip.className = 'map-chip';
         chip.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12Z"/><circle cx="12" cy="9" r="2.5"/></svg>';
@@ -673,6 +782,20 @@ async function loadWishes() {
   }
 }
 
+const thanksPop = document.getElementById('thanks-pop');
+function openThanks() {
+  thanksPop.hidden = false;
+  requestAnimationFrame(() => requestAnimationFrame(() => thanksPop.classList.add('open')));
+  document.getElementById('thanks-close').focus();
+}
+function closeThanks() {
+  thanksPop.classList.remove('open');
+  setTimeout(() => { thanksPop.hidden = true; }, 350);
+}
+document.getElementById('thanks-close').onclick = closeThanks;
+thanksPop.onclick = e => { if (e.target === thanksPop) closeThanks(); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !thanksPop.hidden) closeThanks(); });
+
 form.onsubmit = async e => {
   e.preventDefault();
   const name = form.elements.name.value.trim(), message = form.elements.message.value.trim();
@@ -691,7 +814,8 @@ form.onsubmit = async e => {
       writeLocal(arr); renderWishes(arr);
     }
     form.elements.message.value = '';
-    status.textContent = 'شكراً لكم، وصلت تهنئتكم 🤍';
+    status.textContent = '';
+    openThanks();
   } catch {
     status.textContent = 'لم يتم الإرسال، حاول مرة أخرى';
   } finally {
