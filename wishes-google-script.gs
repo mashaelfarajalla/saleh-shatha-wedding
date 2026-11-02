@@ -6,7 +6,23 @@
  *
  * Columns: time | name | message | show.
  * Untick "show" to hide a wish from the page; delete the row to remove it.
+ *
+ * WhatsApp forwarding (optional): each new wish is sent to WA_PHONE through
+ * CallMeBot. Get the key by sending "I allow callmebot to send me messages"
+ * from that phone to the CallMeBot number listed on callmebot.com, then paste it in WA_APIKEY.
  */
+
+const WA_PHONE = '+972592459391';
+const WA_APIKEY = '';
+
+function notifyWhatsApp_(name, message) {
+  if (!WA_APIKEY) return;
+  const text = '💌 تهنئة جديدة\n' + name + ':\n' + message;
+  try {
+    UrlFetchApp.fetch('https://api.callmebot.com/whatsapp.php?phone=' + encodeURIComponent(WA_PHONE) +
+      '&text=' + encodeURIComponent(text) + '&apikey=' + encodeURIComponent(WA_APIKEY), { muteHttpExceptions: true });
+  } catch (err) {}
+}
 
 function sheet_() {
   const sh = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
@@ -51,6 +67,7 @@ function doPost(e) {
     sh.appendRow([new Date(), name, message]);
     sh.getRange(sh.getLastRow(), 4).insertCheckboxes().setValue(true);
     lock.releaseLock();
+    notifyWhatsApp_(name.replace(/^'/, ''), message.replace(/^'/, ''));
     return json_({ ok: true });
   } catch (err) {
     return json_({ ok: false });

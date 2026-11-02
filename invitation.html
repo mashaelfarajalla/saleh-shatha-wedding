@@ -348,7 +348,6 @@
   form.wish input:focus, form.wish textarea:focus { border-color: var(--gold); background: #fff; }
   form.wish textarea { min-height: 110px; resize: vertical; line-height: 1.7; }
   .form-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-  .form-actions .pill.whats { border-color: #25a35a; color: #1d7a45; }
   .status { min-height: 26px; font-size: var(--fs-sm); color: var(--muted); }
   /* wishes ride a sideways strip of taped notes, in the same paper style as the story album */
   .wishes {
@@ -409,8 +408,42 @@
     background: var(--red); color: #fff; font-family: 'Amiri', serif; font-size: var(--fs-ui);
   }
 
+  /* bottom bar: paper pill with a raised red seal in the middle; shown once the invitation is opened */
+  .dock {
+    position: fixed; z-index: 40; left: 50%; bottom: max(12px, env(safe-area-inset-bottom));
+    width: min(440px, calc(100% - 24px)); height: 64px; translate: -50% 0;
+    display: flex; align-items: center; padding: 0 6px;
+    background: rgba(247, 242, 236, .94); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(184, 147, 90, .4); border-radius: 999px;
+    box-shadow: 0 10px 28px rgba(110, 20, 30, .12);
+    animation: rise .6s ease both;
+  }
+  body.locked .dock { display: none; }
+  .dock a, .dock button {
+    flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    background: none; border: 0; cursor: pointer; text-decoration: none; -webkit-tap-highlight-color: transparent;
+    color: var(--ink); font-family: 'Amiri', serif; font-size: var(--fs-xs); line-height: 1;
+    transition: color .25s;
+  }
+  .dock [hidden] { display: none; }
+  .dock svg { width: 22px; height: 22px; transition: transform .25s; }
+  .dock a:hover, .dock button:hover, .dock .on { color: var(--red); }
+  .dock a:active svg, .dock button:active svg { transform: scale(.88); }
+  .dock .center { flex: 0 0 84px; position: relative; }
+  .dock .center span {
+    position: absolute; top: -26px; left: 50%; translate: -50% 0;
+    width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center;
+    background: radial-gradient(circle at 35% 28%, #c43a4b, #8a1424); color: #f6e7d0;
+    border: 4px solid var(--paper); box-shadow: 0 8px 20px rgba(110, 20, 30, .28), 0 0 0 1px rgba(184, 147, 90, .5);
+  }
+  .dock .center svg { width: 34px; height: 34px; }
+  /* music: the note sways while it plays */
+  .dock .on svg { animation: sway 1.6s ease-in-out infinite; }
+  @keyframes sway { 50% { transform: rotate(-12deg) translateY(-1px); } }
+  @media (prefers-reduced-motion: reduce) { .dock, .dock .on svg { animation: none; } }
+
   footer {
-    text-align: center; padding: 56px 16px 64px; margin-top: 24px;
+    text-align: center; padding: 56px 16px 120px; margin-top: 24px;
     background: linear-gradient(to bottom, transparent, rgba(184, 147, 90, .08));
   }
   footer .blessing { font-size: var(--fs-lg); color: var(--muted); margin-bottom: 18px; }
@@ -568,9 +601,7 @@
       <label>الاسم<input name="name" maxlength="60" required autocomplete="name"></label>
       <label>التهنئة<textarea name="message" maxlength="500" required placeholder="ألف مبروك، بارك الله لكما وبارك عليكما وجمع بينكما في خير…"></textarea></label>
       <div class="form-actions">
-        <button class="pill solid" type="submit"><svg class="heart" style="fill:#fff6ef"><use href="#h"/></svg>إرسال التهنئة</button>
-        <button class="pill whats" type="button" id="whats" hidden>إرسال عبر واتساب</button>
-      </div>
+        <button class="pill solid" type="submit"><svg class="heart" style="fill:#fff6ef"><use href="#h"/></svg>إرسال التهنئة</button>      </div>
       <div class="status" id="status" role="status"></div>
     </form>
     <div class="wishes" id="wish-list"></div>
@@ -587,6 +618,14 @@
     <div class="by">بواسطة <strong>مرسال</strong> <a href="https://instagram.com/mersal.invites" target="_blank" rel="noopener">@mersal.invites</a></div>
   </div>
 </footer>
+
+<nav class="dock" aria-label="القائمة">
+  <a id="dock-call"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>اتصل</a>
+  <button type="button" id="dock-music" aria-pressed="false"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 4.5 19 2.5v12.2a3 3 0 1 1-2-2.83V6.2L11 7.4v9.3a3 3 0 1 1-2-2.83Z"/></svg>موسيقى</button>
+  <a class="center" href="#top" aria-label="إلى الأعلى"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="9" cy="14" r="5.5"/><circle cx="15" cy="14" r="5.5"/><path d="M13.5 6.5 15 4.5l1.5 2-1.5 1.5Z" fill="currentColor"/></svg></span></a>
+  <a href="#location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg>الموقع</a>
+  <a href="#wishes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-8-5-8-10.5A4.5 4.5 0 0 1 12 6.5a4.5 4.5 0 0 1 8 3C20 15 12 20 12 20Z"/></svg>الحضور</a>
+</nav>
 
 <div class="thanks-pop" id="thanks-pop" role="dialog" aria-modal="true" aria-labelledby="thanks-title" hidden>
   <div class="card">
@@ -606,7 +645,7 @@ const CONFIG = {
   venueName: 'صالة Evento · عند باندا مول، دوار حيدر',
   mapsUrl: '',          // Google Maps share link, e.g. 'https://maps.app.goo.gl/...'
   mapQuery: 'Evento Panda Mall دوار حيدر',
-  whatsapp: '',         // couple's number in international format, digits only, e.g. '9627XXXXXXXX'
+  whatsapp: '972592459391',         // couple's number in international format, digits only, e.g. '9627XXXXXXXX'
   sheetsUrl: 'https://script.google.com/macros/s/AKfycbwWDYJvJHOhg4SaQqnSvwCwnrvKh8-CD6Xe__P24qsOsuj0grBj2cpjekyWkBp_YtSg8w/exec',        // Google Apps Script web-app URL (see wishes-google-script.gs)
 };
 /* ========================================================= */
@@ -800,6 +839,10 @@ form.onsubmit = async e => {
   e.preventDefault();
   const name = form.elements.name.value.trim(), message = form.elements.message.value.trim();
   if (!name || !message) return;
+  // WhatsApp opens first, while the click still counts as a user gesture (popup blockers).
+  if (CONFIG.whatsapp) {
+    window.open('https://wa.me/' + CONFIG.whatsapp.replace(/\D/g, '') + '?text=' + encodeURIComponent(`${message}\n— ${name}`), '_blank', 'noopener');
+  }
   const btn = form.querySelector('[type=submit]');
   btn.disabled = true; status.textContent = 'جاري الإرسال…';
   try {
@@ -823,19 +866,20 @@ form.onsubmit = async e => {
   }
 };
 
-// WhatsApp: opens a chat with the couple, message pre-filled.
-const whats = document.getElementById('whats');
-if (CONFIG.whatsapp) {
-  whats.hidden = false;
-  whats.onclick = () => {
-    const name = form.elements.name.value.trim(), message = form.elements.message.value.trim();
-    if (!message) { form.elements.message.focus(); status.textContent = 'اكتب التهنئة أولاً'; return; }
-    const text = `${message}${name ? '\n— ' + name : ''}`;
-    window.open('https://wa.me/' + CONFIG.whatsapp.replace(/\D/g, '') + '?text=' + encodeURIComponent(text), '_blank', 'noopener');
-  };
-}
-
 loadWishes();
+
+/* ---------- bottom bar ---------- */
+(function () {
+  const call = document.getElementById('dock-call');
+  if (CONFIG.whatsapp) call.href = 'tel:+' + CONFIG.whatsapp.replace(/\D/g, '');
+  else call.hidden = true;
+  const btn = document.getElementById('dock-music');
+  const sync = () => { const on = !music.paused; btn.classList.toggle('on', on); btn.setAttribute('aria-pressed', on); };
+  music.addEventListener('play', sync);
+  music.addEventListener('pause', sync);
+  btn.onclick = () => music.paused ? music.play().catch(() => {}) : music.pause();
+  document.querySelector('.dock .center').onclick = e => { e.preventDefault(); scrollTo({ top: 0, behavior: 'smooth' }); };
+})();
 </script>
 </body>
 </html>
