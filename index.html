@@ -1,14 +1,900 @@
-﻿<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>دعوة زفاف صالح وشذا</title>
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>زفاف صالح وشذا</title>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="دعوة زفاف">
 <meta property="og:title" content="دعوة زفاف صالح وشذا 💍">
 <meta property="og:description" content="يتشرّف أهلنا بدعوتكم لحضور حفل زفاف صالح وشذا · الأحد ١٥ نوفمبر ٢٠٢٦ · الساعة ٥ مساءً">
 <meta property="og:url" content="https://mashaelfarajalla.github.io/saleh-shatha-wedding/">
-<meta property="og:image" content="https://mashaelfarajalla.github.io/saleh-shatha-wedding/og-image.jpg">
+<meta property="og:image" content="https://mashaelfarajalla.github.io/saleh-shatha-wedding/assets/images/og-image.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="ar_AR">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="description" content="يتشرّف أهلنا بدعوتكم لحضور حفل زفاف صالح وشذا · الأحد ١٥ نوفمبر ٢٠٢٦ · الساعة ٥ مساءً">
-<link rel="icon" type="image/png" href="mersal-favicon.png"><meta http-equiv="refresh" content="0; url=invitation.html"></head><body><a href="invitation.html">invitation</a></body></html>
+<link rel="icon" type="image/png" href="assets/images/mersal-favicon.png">
+<link rel="apple-touch-icon" href="assets/images/mersal-favicon.png">
+<link rel="preload" href="assets/fonts/amiri-400-arabic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/aref-ruqaa-700-arabic.woff2" as="font" type="font/woff2" crossorigin>
+<link href="assets/fonts/fonts.css" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1c1617; --muted: #6d6260; --red: #a3192b; --cream: #e6d8c4;
+    --paper: #f7f2ec; --gold: #b8935a; --line: rgba(60, 45, 40, .18); --bg: #e9dcca;
+    /* type scale: every text size on the page comes from these */
+    --fs-xs: 14px; --fs-sm: 16px; --fs-ui: 18px; --fs-body: 20px; --fs-lg: 22px;
+    /* cards (map, notes, form, wishes) share one shape */
+    --radius: 16px; --shadow: 0 6px 18px rgba(60, 40, 30, .06);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  /* no native play button over the cover video (Android shows one when autoplay is held back) */
+  video::-webkit-media-controls, video::-webkit-media-controls-overlay-play-button,
+  video::-webkit-media-controls-start-playback-button { display: none !important; -webkit-appearance: none; }
+  html { scroll-behavior: smooth; }
+  /* slim gold scrollbar to match the card; Firefox gets the standard properties
+     (kept out of Chrome, where they would override the ::-webkit-scrollbar rules) */
+  @supports not selector(::-webkit-scrollbar) {
+    html { scrollbar-width: thin; scrollbar-color: var(--gold) var(--paper); }
+  }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--paper); }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(var(--gold), #9a7745); border-radius: 8px;
+    border: 2px solid var(--paper);
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--red); }
+  body {
+    background: var(--bg); color: var(--ink); font-family: 'Amiri', serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* one fixed copy of the texture behind everything: no tiling seams, and works on iOS (unlike background-attachment: fixed) */
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: -1;
+    background: var(--bg) url(assets/images/bg-video.jpg?v=2) center / cover no-repeat;
+  }
+  button, input, textarea { font: inherit; color: inherit; }
+  [hidden] { display: none !important; }
+
+  /* ---------- hero: the animated photo card ---------- */
+  .hero { display: flex; justify-content: center; }
+  #card {
+    position: relative; aspect-ratio: 9 / 16;
+    height: min(120svh, calc(100vw * 16 / 9));
+    background: var(--cream);
+    overflow: hidden;
+  }
+  /* phones taller than 9:16 (most are ~20:9): the card keeps the clip's 9:16 shape so the whole
+     clip shows with no cream bands; it sits at the top and the page background shows below it */
+  @media (max-aspect-ratio: 9/16) {
+    body.locked header.hero { align-items: flex-start; }
+  }
+  #card .photo {
+    position: absolute; left: 0; width: 100%; display: block; object-fit: contain;
+    /* fills the whole card top to bottom with no fades */
+    top: 0; height: 100%;
+    /* the clip spans the full card width, so the side fades stay thin to keep off the children */
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent);
+    transform-origin: 55% 62%;
+    /* warms the photo's grey-pink backdrop to the cover's cream wall (#e6d8c4) */
+    filter: sepia(.16) brightness(.96);
+  }
+  /* slow zoom only while showing the still photo; a real clip carries its own motion */
+  #card.play.still .photo { animation: kenburns 20s ease-in-out infinite alternate; }
+  @keyframes kenburns { from { transform: scale(1); } to { transform: scale(1.09) translateY(-1.5%); } }
+  /* 720x1280 design stage (same layout as overlay.html), scaled to the card by JS */
+  #stage { position: absolute; top: 0; left: 0; width: 720px; height: 1280px; transform-origin: 0 0; z-index: 1; }
+  #stage .t { position: absolute; left: 0; right: 0; text-align: center; color: var(--ink); }
+  #stage .small { font-family: 'Cinzel', serif; font-weight: 500; font-size: 21px; letter-spacing: 4.5px; line-height: 34px; direction: ltr; }
+  #stage .big { font-family: 'Cinzel', serif; font-weight: 500; font-size: 64px; letter-spacing: 2px; line-height: 1; direction: ltr; }
+  #stage .rule { position: absolute; left: 50%; transform: translateX(-50%); margin: 0; gap: 14px; }
+  #stage .rule i { display: block; height: 1.5px; background: #3a3030; opacity: 1; }
+  #stage .heart { width: 18px; height: 16px; }
+  #stage .row {
+    position: absolute; left: 0; right: 0; display: flex; justify-content: center; align-items: center; gap: 16px;
+    font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 25px; letter-spacing: 4px; color: var(--ink); direction: ltr;
+  }
+  #stage .row svg { width: 30px; height: 30px; }
+  #stage .ar { font-family: 'Amiri', serif; font-weight: 700; }
+  #stage > * { opacity: 0; }
+  #card.play #stage > * { animation: line-in 1.4s ease both; animation-delay: calc(var(--i) * .35s + .3s); }
+  @keyframes line-in { from { opacity: 0; translate: 0 14px; } to { opacity: 1; translate: none; } }
+  /* the couple's names in script, "written" left to right once the cover opens */
+  #stage .script {
+    position: absolute; left: 0; right: 0; text-align: center; direction: ltr;
+    font-family: 'Great Vibes', cursive; font-size: 104px; line-height: 1.3; color: var(--ink);
+    text-shadow: 0 2px 18px rgba(240, 230, 214, .9);
+  }
+  #stage .script .amp { font-size: .7em; margin: 0 .1em; }
+  #card.play #stage > .script { animation: write-in 2.6s cubic-bezier(.45, .05, .35, 1) .6s both; }
+  @keyframes write-in {
+    from { opacity: 0; clip-path: inset(-20% 100% -20% 0); filter: blur(3px); }
+    30% { opacity: 1; }
+    to { opacity: 1; clip-path: inset(-20% 0 -20% 0); filter: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #card.play .photo { animation: none; }
+    #card.play #stage > *, #card.play #stage > .script { animation: none; opacity: 1; }
+  }
+  #start {
+    position: absolute; inset: 0; cursor: pointer; z-index: 2;
+    display: flex; align-items: center; justify-content: center;
+  }
+  /* cover photo: the whole flower-and-lantern set (1.jpg) with the hugging kids cut out (2.png)
+     sitting on its rug below the seal. The cut-out is cropped on its right and bottom, so it is
+     pinned to the card's right edge and dropped just past its bottom to hide those cuts.
+     Both doors carry the whole picture, each clipped to its half, so on tap they part from the middle. */
+  #start { container-type: size; }
+  #start::before, #start::after {
+    content: ''; position: absolute; inset: 0; z-index: -1;
+    background:
+      /* warm light behind the seal */
+      radial-gradient(circle at 50% 39%, rgba(255, 248, 240, .7), rgba(255, 248, 240, 0) 32%),
+      url(assets/images/2.png) right top 44cqh / auto 58cqh no-repeat,
+      /* the set (1.jpg) extended to 9:16 by mirroring its own rug downward, at native scale */
+      #edd8cd url(assets/images/cover-bg.jpg) center top / cover no-repeat;
+    transition: transform 1.4s cubic-bezier(.65, 0, .35, 1);
+  }
+  #start::before { clip-path: inset(0 50% 0 0); }
+  #start::after  { clip-path: inset(0 0 0 50%); }
+  #start.gone::before { transform: translateX(-50%); }
+  #start.gone::after  { transform: translateX(50%); }
+  /* the Mersal seal: paper disc, thin ring and logo, recoloured in this card's red and gold */
+  #start .open-btn {
+    width: clamp(96px, 26%, 150px); aspect-ratio: 1; border-radius: 50%; padding: 0; cursor: pointer;
+    background: var(--paper); border: 1px solid rgba(184, 147, 90, .35);
+    box-shadow: 0 10px 30px rgba(110, 20, 30, .14), inset 0 0 15px rgba(184, 147, 90, .1);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .9s ease, opacity .9s ease;
+    margin-bottom: 22cqh;   /* lifts the seal to ~39% to make room for the kids */
+  }
+  #start .open-btn .seal {
+    width: 84%; height: 84%; border-radius: 50%; border: 1.5px solid var(--red);
+    display: flex; align-items: center; justify-content: center;
+    animation: pulse 2.6s ease-in-out infinite;
+  }
+  /* the logo file is dark green line art; used as a mask so it takes the card's red */
+  #start .open-btn .logo {
+    width: 76%; aspect-ratio: 480 / 228; background: var(--red);
+    /* inlined (mersal.webp) so the mask also loads when the page is opened from file:// */
+    --logo: url(data:image/webp;base64,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);
+    -webkit-mask: var(--logo) center / contain no-repeat; mask: var(--logo) center / contain no-repeat;
+  }
+  /* the names above the seal; sized in cqw so they match the hero stage's 720px layout.
+     On a wide screen the locked card is 120svh tall and centred, so its top ~8% is off-screen:
+     the text starts below that. */
+  #start .names {
+    position: absolute; top: 12cqh; left: 0; right: 0; text-align: center; color: var(--ink);
+    font-family: 'Cinzel', serif; font-weight: 500; direction: ltr; pointer-events: none;
+    transition: opacity .9s ease;
+  }
+  #start .names .small { font-size: 2.92cqw; letter-spacing: .63cqw; line-height: 4.72cqw; }
+  /* same script and size as the hero's names (104px on the 720px stage) */
+  #start .names .script {
+    margin-top: 1cqw; font-family: 'Great Vibes', cursive; font-size: 14.44cqw; line-height: 1.3;
+    text-shadow: 0 2px 18px rgba(240, 230, 214, .9);
+  }
+  #start .names .script .amp { font-size: .7em; margin: 0 .1em; }
+  #start.gone .names { opacity: 0; }
+  #start.gone .open-btn { transform: scale(1.5); opacity: 0; }
+  #start.gone { pointer-events: none; }
+  /* until the seal is tapped: only the cover, no scrolling */
+  body.locked { height: 100svh; overflow: hidden; }
+  body.locked .hero { height: 100svh; align-items: center; }
+  body.locked main, body.locked footer { display: none; }
+  @keyframes pulse { 50% { transform: scale(1.05); } }
+  .pill {
+    font-size: var(--fs-ui); font-weight: 700; padding: 10px 22px; border-radius: 999px; cursor: pointer; text-decoration: none;
+    border: 1px solid var(--gold); background: rgba(255,255,255,.75); color: var(--ink);
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .pill svg:not(.heart) { width: 18px; height: 18px; flex: none; }
+  .pill:hover { background: #fff; }
+  .cal-ico { color: var(--gold); }
+  .pill.solid { background: var(--red); border-color: var(--red); color: #fff6ef; }
+  .pill.solid:hover { background: #8a1424; }
+
+  /* ---------- sections ---------- */
+  section {
+    max-width: 560px; margin: 0 auto; padding: 64px 16px; text-align: center;
+  }
+  .eyebrow {
+    font-family: 'Cinzel', serif; font-weight: 500; font-size: 13px; letter-spacing: 4px; color: var(--gold); direction: ltr;
+  }
+  h2 { font-family: 'Aref Ruqaa', serif; font-size: 40px; font-weight: 700; margin: 6px 0 4px; }
+  .rule { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 10px 0 26px; }
+  .rule i { width: 70px; height: 1px; background: var(--ink); opacity: .55; }
+  .heart { width: 16px; height: 14px; fill: var(--red); flex: none; }
+  .lead { color: var(--muted); font-size: var(--fs-body); line-height: 1.8; margin-bottom: 26px; }
+
+  /* countdown */
+  .countdown { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .unit {
+    padding: 16px 4px 10px;
+  }
+  .unit b {
+    display: block; font-family: 'Cormorant Garamond', serif; font-weight: 600;
+    font-size: clamp(32px, 9vw, 46px); line-height: 1; font-variant-numeric: lining-nums tabular-nums;
+  }
+  .unit span { display: block; margin-top: 6px; font-size: var(--fs-sm); color: var(--muted); }
+  .when { margin-top: 26px; font-size: var(--fs-body); line-height: 1.9; }
+  .when .ar { display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .when .en {
+    display: block; margin-top: 4px; font-family: 'Cormorant Garamond', serif; font-weight: 600;
+    font-size: var(--fs-sm); letter-spacing: 2px; direction: ltr; color: var(--muted);
+  }
+  .when svg { width: 20px; height: 20px; flex: none; color: var(--gold); }
+  .done-msg { font-family: 'Aref Ruqaa', serif; font-size: 30px; color: var(--red); }
+
+  /* invitation wording: verse, the two fathers, the invite line */
+  .basmala { font-size: var(--fs-lg); color: var(--muted); margin-bottom: 14px; }
+  .ayah { font-size: clamp(21px, 5.4vw, 25px); line-height: 2.1; }
+  .ayah cite { display: block; margin-top: 4px; font-style: normal; font-size: var(--fs-sm); color: var(--gold); }
+  .hosts-intro { margin-top: 26px; font-size: var(--fs-body); color: var(--muted); }
+  .hosts { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 14px; margin: 14px 0 22px; }
+  .hosts .host b { display: block; font-family: 'Aref Ruqaa', serif; font-size: clamp(22px, 6vw, 28px); font-weight: 700; }
+  .hosts .host span { display: block; margin-top: 2px; font-size: var(--fs-sm); color: var(--muted); }
+  .hosts .sep { width: 1px; height: 52px; }
+  .invite-text { font-size: var(--fs-body); line-height: 2; }
+  .invite-text .couple { display: block; margin: 8px 0; font-family: 'Aref Ruqaa', serif; font-size: clamp(30px, 8vw, 38px); color: var(--red); }
+
+  /* story album: small polaroids two to a row, tilted alternately; an odd last one sits centred */
+  #story { overflow-x: clip; }
+  .album { display: grid; grid-template-columns: 1fr 1fr; gap: 26px 18px; max-width: 440px; margin: 0 auto; padding-top: 8px; }
+  .photo-frame {
+    position: relative; margin: 0; padding: 7px 7px 10px; background: #fff; border-radius: 3px;
+    box-shadow: 0 10px 24px rgba(60, 40, 30, .15), 0 2px 5px rgba(60, 40, 30, .08);
+    --r: -2deg; rotate: var(--r);
+    opacity: 0; translate: 0 24px; transition: opacity .9s, translate .9s, rotate .4s;
+  }
+  .photo-frame:nth-child(even) { --r: 2deg; transition-delay: .15s; }
+  .photo-frame:last-child:nth-child(odd) { grid-column: 1 / -1; justify-self: center; width: calc(50% - 9px); --r: 1deg; }
+  .photo-frame.in { opacity: 1; translate: none; }
+  .photo-frame:hover { rotate: 0deg; }
+  /* little strip of washi tape holding each photo */
+  .photo-frame::before {
+    content: ''; position: absolute; top: -9px; left: 50%; width: 56px; height: 18px; translate: -50% 0; rotate: -5deg;
+    background: rgba(184, 147, 90, .3); box-shadow: 0 1px 2px rgba(60, 40, 30, .08);
+  }
+  .photo-frame:nth-child(even)::before { rotate: 6deg; }
+  .photo-frame button { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; }
+  /* every card is 4:5; the two tall photos are cropped to the children, the full photo opens on tap */
+  .photo-frame img {
+    display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 2px;
+    object-position: 50% var(--y, 50%);
+  }
+  .photo-frame figcaption { margin-top: 8px; font-family: 'Aref Ruqaa', serif; font-size: var(--fs-ui); line-height: 1.4; }
+  .photo-frame figcaption small {
+    display: block; font-family: 'Amiri', serif; font-size: var(--fs-xs); color: var(--gold);
+  }
+  /* full-size photo */
+  #viewer {
+    max-width: none; max-height: none; width: 100%; height: 100%; margin: 0; padding: 16px; border: 0;
+    background: rgba(28, 22, 23, .9); display: flex; align-items: center; justify-content: center; cursor: zoom-out;
+  }
+  #viewer:not([open]) { display: none; }
+  #viewer img { max-width: 100%; max-height: 100%; border-radius: 10px; box-shadow: 0 20px 60px rgba(0, 0, 0, .4); }
+  #viewer::backdrop { background: transparent; }
+  @media (prefers-reduced-motion: reduce) { .photo-frame { transition: none; opacity: 1; translate: none; } }
+
+  /* map */
+  .map {
+    border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); background: #fff;
+    box-shadow: var(--shadow);
+  }
+  .map { position: relative; border-color: rgba(163, 25, 43, .14); }
+  /* tint Google's map toward the paper palette; the pin and chip sit on top in full colour */
+  .map iframe { display: block; width: 100%; height: 300px; border: 0; filter: grayscale(.9) sepia(.18) contrast(.96) brightness(1.03); }
+  .map::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: rgba(163, 25, 43, .035); box-shadow: inset 0 0 0 1px rgba(255,255,255,.5); border-radius: inherit; }
+  /* our pin is a little bigger than Google's marker and its tip dips just past the map centre, so it hides it completely */
+  .map-pin { position: absolute; left: 50%; top: 50%; width: 56px; height: 70px; margin: -63px 0 0 -28px; pointer-events: none; z-index: 1; filter: drop-shadow(0 6px 8px rgba(110, 20, 30, .3)); }
+  .map-pin svg { display: block; width: 100%; height: 100%; }
+  .map-chip {
+    position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 1; max-width: calc(100% - 32px);
+    display: inline-flex; align-items: center; gap: 6px; padding: 6px 16px; border-radius: 999px;
+    background: var(--red); color: #fff6ef; font-size: var(--fs-sm); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    box-shadow: 0 4px 12px rgba(110, 20, 30, .28);
+  }
+  .map-chip svg { width: 16px; height: 16px; flex: none; }
+  /* our own place card, laid over Google's (which names the mall, not the hall) and sized to hide it */
+  .map-card {
+    position: absolute; top: 8px; left: 8px; z-index: 2; width: 272px; min-height: 134px; box-sizing: border-box;
+    display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 8px; text-align: right;
+    background: #fff; color: #3a2a2c; box-shadow: 0 2px 8px rgba(0, 0, 0, .18);
+  }
+  .map-card b { font-size: 1.05rem; color: var(--red); }
+  .map-card span { font-size: var(--fs-sm); color: #7a6a6c; }
+  .map-card a {
+    margin-top: auto; align-self: flex-end; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px;
+    background: var(--red); color: #fff6ef; font-size: var(--fs-sm); font-weight: 700; text-decoration: none;
+  }
+  .map-card a svg { width: 14px; height: 14px; flex: none; }
+  /* on phones Google shrinks its card to a small button, so ours shrinks too and keeps clear of the pin */
+  @media (max-width: 560px) {
+    .map-card { width: auto; max-width: calc(50% - 30px); min-height: 0; padding: 8px 10px; }
+    .map-card span { display: none; }
+    .map-card a { padding: 4px 10px; font-size: .75rem; }
+  }
+  .map-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+  .map-actions .pill { padding: 10px 14px; white-space: nowrap; }
+  .map-actions .pill.solid { background: linear-gradient(135deg, #b8304a, #8a1424); color: #fff6ef; }
+  .map-actions .pill:not(.solid) { color: var(--red); border-color: rgba(163, 25, 43, .3); }
+  @media (max-width: 380px) { .map-actions .pill { font-size: var(--fs-sm); padding: 10px 8px; } }
+  .map-empty {
+    height: 220px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+    color: var(--muted); font-size: var(--fs-body);
+    background: repeating-linear-gradient(45deg, #fff, #fff 12px, #faf6f1 12px, #faf6f1 24px);
+  }
+  /* wax-seal coloured pin with a heart, gently bobbing over its shadow */
+  .pin { position: relative; width: 56px; height: 78px; }
+  .pin svg { display: block; width: 56px; height: 70px; filter: drop-shadow(0 6px 8px rgba(110, 20, 30, .28)); animation: bob 2.4s ease-in-out infinite; }
+  .pin i {
+    position: absolute; bottom: 0; left: 50%; width: 26px; height: 7px; margin-left: -13px; border-radius: 50%;
+    background: rgba(60, 40, 30, .22); animation: squash 2.4s ease-in-out infinite;
+  }
+  @keyframes bob { 50% { transform: translateY(-7px); } }
+  @keyframes squash { 50% { transform: scale(.65); opacity: .5; } }
+  @media (prefers-reduced-motion: reduce) { .pin svg, .pin i { animation: none; } }
+  .venue { font-size: var(--fs-lg); font-weight: 700; margin: 18px 0 14px; }
+
+  /* notes */
+  .notes { list-style: none; display: grid; gap: 12px; }
+  .notes li {
+    display: flex; align-items: center; gap: 12px; padding: 14px 18px; text-align: right;
+    background: #fff; border: 1px solid var(--line); border-radius: var(--radius); font-size: var(--fs-body);
+    box-shadow: var(--shadow);
+  }
+  .notes svg { width: 24px; height: 24px; flex: none; color: var(--gold); }
+
+  /* wishes */
+  form.wish {
+    background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 18px;
+    display: grid; gap: 12px; text-align: right; box-shadow: var(--shadow);
+  }
+  form.wish label { font-size: var(--fs-sm); color: var(--muted); display: grid; gap: 4px; }
+  form.wish input, form.wish textarea {
+    width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
+    font-size: var(--fs-ui); background: var(--paper); outline: none;
+  }
+  form.wish input:focus, form.wish textarea:focus { border-color: var(--gold); background: #fff; }
+  form.wish textarea { min-height: 110px; resize: vertical; line-height: 1.7; }
+  .form-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .status { min-height: 26px; font-size: var(--fs-sm); color: var(--muted); }
+  /* wishes ride a sideways strip of taped notes, in the same paper style as the story album */
+  .wishes {
+    display: flex; align-items: stretch; gap: 18px; margin: 26px -16px 0; padding: 20px 24px 24px;
+    overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+            mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+  }
+  .wishes::-webkit-scrollbar { display: none; }
+  .wish-card {
+    position: relative; flex: 0 0 min(72%, 260px); scroll-snap-align: center;
+    display: flex; flex-direction: column; padding: 20px 16px 14px; background: #fff; border-radius: 3px;
+    box-shadow: 0 10px 24px rgba(60, 40, 30, .15), 0 2px 5px rgba(60, 40, 30, .08);
+    --r: -2deg; rotate: var(--r); transition: rotate .4s; animation: rise .5s ease both;
+  }
+  .wish-card:nth-child(even) { --r: 2deg; }
+  /* a lone wish sits centred; once the row overflows these margins collapse to nothing */
+  .wish-card:first-child { margin-inline-start: auto; }
+  .wish-card:last-child { margin-inline-end: auto; }
+  .wish-card:hover { rotate: 0deg; }
+  .wish-card::before {
+    content: ''; position: absolute; top: -9px; left: 50%; width: 56px; height: 18px; translate: -50% 0; rotate: -5deg;
+    background: rgba(184, 147, 90, .3); box-shadow: 0 1px 2px rgba(60, 40, 30, .08);
+  }
+  .wish-card:nth-child(even)::before { rotate: 6deg; }
+  .wish-card .who {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    font-family: 'Aref Ruqaa', serif; font-size: var(--fs-ui); color: var(--red); line-height: 1.4;
+  }
+  .wish-card .msg { flex: 1; margin-top: 8px; font-size: var(--fs-ui); line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .wish-card time { display: block; margin-top: 10px; font-family: 'Amiri', serif; font-size: var(--fs-xs); color: var(--gold); }
+  .empty { flex: 1; color: var(--muted); font-size: var(--fs-ui); padding: 10px 0; text-align: center; }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } }
+
+  /* thank-you popup after a wish is sent: paper card with a gold inner frame */
+  .thanks-pop {
+    position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px;
+    background: rgba(28, 22, 23, .45); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+    opacity: 0; visibility: hidden; transition: opacity .35s, visibility .35s;
+  }
+  .thanks-pop.open { opacity: 1; visibility: visible; }
+  .thanks-pop .card {
+    position: relative; width: min(340px, 100%); padding: 40px 28px 28px; text-align: center;
+    background: var(--paper); border-radius: 18px; box-shadow: 0 24px 60px rgba(28, 22, 23, .3);
+    transform: translateY(16px) scale(.96); transition: transform .45s cubic-bezier(.2, .9, .3, 1.2);
+  }
+  .thanks-pop.open .card { transform: none; }
+  .thanks-pop .card::before {
+    content: ''; position: absolute; inset: 8px; border: 1px solid rgba(184, 147, 90, .55); border-radius: 12px; pointer-events: none;
+  }
+  .thanks-pop .heart { display: block; margin: 0 auto; width: 40px; height: 36px; }
+  .thanks-pop.open .heart { animation: pulse 1.4s ease-in-out .4s 2; }
+  .thanks-pop h3 { font-family: 'Aref Ruqaa', serif; font-size: 32px; font-weight: 700; color: var(--red); margin: 12px 0 4px; }
+  .thanks-pop p { font-size: var(--fs-body); color: var(--muted); line-height: 1.8; margin: 0; }
+  .thanks-pop .sig { margin-top: 10px; font-family: 'Great Vibes', cursive; font-size: 30px; color: var(--gold); direction: ltr; }
+  .thanks-pop button {
+    margin-top: 20px; padding: 10px 34px; border: 0; border-radius: 999px; cursor: pointer;
+    background: var(--red); color: #fff; font-family: 'Amiri', serif; font-size: var(--fs-ui);
+  }
+
+  /* bottom bar: paper pill with a raised red seal in the middle; shown once the invitation is opened */
+  .dock {
+    position: fixed; z-index: 40; left: 50%; bottom: max(12px, env(safe-area-inset-bottom));
+    width: min(440px, calc(100% - 24px)); height: 64px; translate: -50% 0;
+    display: flex; align-items: center; padding: 0 6px;
+    background: rgba(247, 242, 236, .94); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(184, 147, 90, .4); border-radius: 999px;
+    box-shadow: 0 10px 28px rgba(110, 20, 30, .12);
+    animation: rise .6s ease both;
+  }
+  body.locked .dock { display: none; }
+  .dock a, .dock button {
+    flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    background: none; border: 0; cursor: pointer; text-decoration: none; -webkit-tap-highlight-color: transparent;
+    color: var(--ink); font-family: 'Amiri', serif; font-size: var(--fs-xs); line-height: 1;
+    transition: color .25s;
+  }
+  .dock [hidden] { display: none; }
+  .dock svg { width: 22px; height: 22px; transition: transform .25s; }
+  .dock a:hover, .dock button:hover, .dock .on { color: var(--red); }
+  .dock a:active svg, .dock button:active svg { transform: scale(.88); }
+  .dock .center { flex: 0 0 84px; position: relative; }
+  .dock .center span {
+    position: absolute; top: -26px; left: 50%; translate: -50% 0;
+    width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center;
+    background: radial-gradient(circle at 35% 28%, #c43a4b, #8a1424); color: #f6e7d0;
+    border: 4px solid var(--paper); box-shadow: 0 8px 20px rgba(110, 20, 30, .28), 0 0 0 1px rgba(184, 147, 90, .5);
+  }
+  .dock .center svg { width: 34px; height: 34px; }
+  /* music: the note sways while it plays */
+  .dock .on svg { animation: sway 1.6s ease-in-out infinite; }
+  @keyframes sway { 50% { transform: rotate(-12deg) translateY(-1px); } }
+  @media (prefers-reduced-motion: reduce) { .dock, .dock .on svg { animation: none; } }
+
+  footer {
+    text-align: center; padding: 56px 16px 120px; margin-top: 24px;
+    background: linear-gradient(to bottom, transparent, rgba(184, 147, 90, .08));
+  }
+  footer .blessing { font-size: var(--fs-lg); color: var(--muted); margin-bottom: 18px; }
+  /* same script as the cover and the hero */
+  footer .names {
+    font-family: 'Great Vibes', cursive; font-size: clamp(48px, 13vw, 64px); line-height: 1.3; direction: ltr; color: var(--ink);
+  }
+  footer .names .amp { font-size: .7em; margin: 0 .1em; }
+  footer .date {
+    display: inline-block; margin-top: 18px; padding: 6px 22px;
+    border: 1px solid rgba(184, 147, 90, .55); border-radius: 999px;
+    font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: var(--fs-ui);
+    letter-spacing: 3px; direction: ltr; color: var(--ink);
+  }
+  footer .thanks { font-family: 'Cinzel', serif; font-weight: 500; font-size: 13px; letter-spacing: 4px; color: var(--gold); margin-top: 28px; direction: ltr; }
+  /* Mersal credit, set off from the card by a short gold rule */
+  footer .credit { margin-top: 40px; padding-top: 22px; border-top: 1px solid rgba(184, 147, 90, .35); max-width: 260px; margin-inline: auto; }
+  footer .credit .tagline { font-size: var(--fs-ui); color: var(--muted); line-height: 1.8; }
+  footer .credit .by { margin-top: 6px; font-size: var(--fs-xs); color: var(--muted); }
+  footer .credit .by strong { color: var(--red); font-weight: 700; }
+  footer .credit .by a { color: var(--gold); text-decoration: none; direction: ltr; unicode-bidi: isolate; margin-inline-start: 6px; }
+
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s, transform .8s; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; } }
+</style>
+</head>
+<body class="locked">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="h" viewBox="0 0 24 22"><path d="M12 21 C 4 14, 0 10, 0 6 A 6 6 0 0 1 12 4 A 6 6 0 0 1 24 6 C 24 10, 20 14, 12 21 Z"/></symbol>
+</svg>
+
+<header class="hero">
+  <div id="card">
+    <!-- proposal.mp4 = the photo animated by an AI video tool; the poster photo shows until it loads -->
+    <video class="photo" id="clip" src="assets/video/proposal.mp4?v=2" poster="assets/images/proposal.jpg?v=2" muted playsinline loop preload="auto"></video>
+    <div id="stage" aria-label="Saleh and Shatha">
+      <div class="script" style="top:70px; --i:0">Saleh <span class="amp">&amp;</span> Shatha</div>
+    </div>
+    <audio id="music" src="assets/audio/hatedalaa.m4a" preload="auto"></audio>
+    <div id="start">
+      <div class="names" aria-label="You are invited to the wedding of Saleh and Shatha">
+        <div class="small">YOU ARE INVITED<br>TO THE WEDDING OF</div>
+        <div class="script">Saleh <span class="amp">&amp;</span> Shatha</div>
+      </div>
+      <button type="button" class="open-btn" aria-label="افتح الدعوة"><span class="seal" aria-hidden="true"><span class="logo"></span></span></button></div>
+  </div>
+</header>
+
+<main>
+  <!-- invitation wording -->
+  <section id="invite" class="reveal">
+    <p class="basmala">بسم الله الرحمن الرحيم</p>
+    <p class="ayah">
+      ﴿ وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ﴾
+      <cite>سورة الروم — الآية ٢١</cite>
+    </p>
+    <div class="rule"><i></i><svg class="heart"><use href="#h"/></svg><i></i></div>
+    <p class="hosts-intro">يتشرّف</p>
+    <div class="hosts">
+      <div class="host"><b>رائد صالح الوادية</b><span>والد العريس</span></div>
+      <div class="sep"></div>
+      <div class="host"><b>جمال نمر المصري</b><span>والد العروس</span></div>
+    </div>
+    <p class="invite-text">
+      بدعوتكم لتشريف حفل زفاف نجلَيهما
+      <span class="couple">صالح &amp; شذا</span>
+      راجين من الله أن يجعله زواجاً مباركاً،<br>
+      فحضوركم يزيدنا فرحاً وشرفاً
+    </p>
+    <p class="when">
+      <span class="ar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>يوم الأحد ١٥ نوفمبر ٢٠٢٦</span>
+      <span class="ar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>الساعة ٥:٠٠ مساءً</span>
+      <span class="en">SUNDAY · 15 · 11 · 2026 · 5:00 PM</span>
+    </p>
+  </section>
+
+  <!-- countdown -->
+  <section id="countdown" class="reveal">
+    <div class="eyebrow">SAVE THE DATE</div>
+    <h2>العد التنازلي</h2>
+    <div class="rule"><i></i><svg class="heart"><use href="#h"/></svg><i></i></div>
+    <div class="countdown" id="cd">
+      <div class="unit"><b data-u="d">0</b><span>يوم</span></div>
+      <div class="unit"><b data-u="h">0</b><span>ساعة</span></div>
+      <div class="unit"><b data-u="m">0</b><span>دقيقة</span></div>
+      <div class="unit"><b data-u="s">0</b><span>ثانية</span></div>
+    </div>
+    <p class="done-msg" id="cd-done" hidden>تمّ الزفاف، ألف مبروك</p>
+    <p style="margin-top:22px"><a class="pill" id="cal" target="_blank" rel="noopener"><svg class="cal-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><use href="#h" x="9" y="12.2" width="6" height="5.5" fill="var(--red)" stroke="none"/></svg>أضف إلى التقويم</a></p>
+  </section>
+
+  <!-- photo -->
+  <section id="story" class="reveal">
+    <div class="eyebrow">OUR STORY</div>
+    <h2>بداية الحكاية</h2>
+    <div class="rule"><i></i><svg class="heart"><use href="#h"/></svg><i></i></div>
+    <div class="album" id="album">
+      <figure class="photo-frame">
+        <button type="button"><img src="assets/images/story-1.jpg" alt="طفلان يقرآن كتاباً معاً" loading="lazy"></button>
+        <figcaption><small>مايو ٢٠٢٤</small>من أول نظرة</figcaption>
+      </figure>
+      <figure class="photo-frame">
+        <button type="button"><img src="assets/images/story-2.jpg" alt="طفل يقدّم وردة بيضاء لطفلة" loading="lazy"></button>
+        <figcaption><small>يناير ٢٠٢٥</small>وجاء يطلب يدي</figcaption>
+      </figure>
+      <figure class="photo-frame">
+        <button type="button"><img src="assets/images/story-3.jpg" alt="طفل يقدّم خاتماً لطفلة بين الزهور البيضاء" loading="lazy" style="--y:57%"></button>
+        <figcaption><small>١٥ مايو ٢٠٢٦</small>وكانت الخطوبة</figcaption>
+      </figure>
+      <figure class="photo-frame">
+        <button type="button"><img src="assets/images/story-4.jpg" alt="طفلان يمسكان بيدي بعضهما تحت قوس من الزهور" loading="lazy"></button>
+        <figcaption><small>ومن يومها</small>قلبان ودرب واحد</figcaption>
+      </figure>
+      <figure class="photo-frame">
+        <button type="button"><img src="assets/images/story-5.jpg" alt="طفلان بأزياء الزفاف وسط الزهور" loading="lazy" style="--y:36%"></button>
+        <figcaption><small>١٥ نوفمبر ٢٠٢٦</small>وموعدنا ليلة العمر</figcaption>
+      </figure>
+    </div>
+    <dialog id="viewer"><img alt=""></dialog>
+  </section>
+
+  <!-- map -->
+  <section id="location" class="reveal">
+    <div class="eyebrow">LOCATION</div>
+    <h2>موقع الحفل</h2>
+    <div class="rule"><i></i><svg class="heart"><use href="#h"/></svg><i></i></div>
+    <div class="map" id="map"></div>
+    <p class="venue" id="venue"></p>
+    <div class="map-actions" id="map-actions" hidden>
+      <a class="pill" id="directions" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>فتح الخريطة</a>
+      <a class="pill solid" id="map-cal" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><use href="#h" x="9" y="12.2" width="6" height="5.5" fill="currentColor" stroke="none"/></svg>أضف إلى التقويم</a>
+    </div>
+  </section>
+
+  <!-- notes -->
+  <section id="notes" class="reveal">
+    <div class="eyebrow">NOTES</div>
+    <h2>ملاحظات</h2>
+    <div class="rule"><i></i><svg class="heart"><use href="#h"/></svg><i></i></div>
+    <ul class="notes">
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V10l7-6 7 6v11"/><path d="M10 21v-6h4v6"/></svg>التوجّه إلى الصالة مباشرة</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 18.5h3"/><path d="M3 3l18 18" stroke="var(--red)" stroke-width="2"/></svg>ممنوع التصوير بالجوال</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="6" r="2.5"/><path d="M12 9v6M8.5 12h7M12 15l-2.5 5M12 15l2.5 5"/><path d="M3 3l18 18" stroke="var(--red)" stroke-width="2"/></svg>نعتذر عن عدم اصطحاب الأطفال</li>
+    </ul>
+  </section>
+
+  <!-- wishes -->
+  <section id="wishes" class="reveal">
+    <div class="eyebrow">WISHES</div>
+    <h2>التهاني والمباركات</h2>
+    <div class="rule"><i></i><svg class="heart"><use href="#h"/></svg><i></i></div>
+    <p class="lead">شاركونا فرحتنا واكتبوا لنا كلمة نحتفظ بها للأبد</p>
+    <form class="wish" id="wish-form">
+      <label>الاسم<input name="name" maxlength="60" required autocomplete="name"></label>
+      <label>التهنئة<textarea name="message" maxlength="500" required placeholder="ألف مبروك، بارك الله لكما وبارك عليكما وجمع بينكما في خير…"></textarea></label>
+      <div class="form-actions">
+        <button class="pill solid" type="submit"><svg class="heart" style="fill:#fff6ef"><use href="#h"/></svg>إرسال التهنئة</button>      </div>
+      <div class="status" id="status" role="status"></div>
+    </form>
+    <div class="wishes" id="wish-list"></div>
+  </section>
+</main>
+
+<footer>
+  <div class="blessing">بارك الله لهما وبارك عليهما وجمع بينهما في خير</div>
+  <div class="names">Saleh <span class="amp">&amp;</span> Shatha</div>
+  <div class="date">SUNDAY · 15 · 11 · 2026</div>
+  <div class="thanks">WITH LOVE &amp; GRATITUDE</div>
+  <div class="credit">
+    <div class="tagline">لكل مناسبة، رسالة تستحق أن تصل</div>
+    <div class="by">بواسطة <strong>مرسال</strong> <a href="https://instagram.com/mersal.invites" target="_blank" rel="noopener">@mersal.invites</a></div>
+  </div>
+</footer>
+
+<nav class="dock" aria-label="القائمة">
+  <a id="dock-call"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>اتصل</a>
+  <button type="button" id="dock-music" aria-pressed="false"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 4.5 19 2.5v12.2a3 3 0 1 1-2-2.83V6.2L11 7.4v9.3a3 3 0 1 1-2-2.83Z"/></svg>موسيقى</button>
+  <a class="center" href="#top" aria-label="إلى الأعلى"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="9" cy="14" r="5.5"/><circle cx="15" cy="14" r="5.5"/><path d="M13.5 6.5 15 4.5l1.5 2-1.5 1.5Z" fill="currentColor"/></svg></span></a>
+  <a href="#location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg>الموقع</a>
+  <a href="#wishes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-8-5-8-10.5A4.5 4.5 0 0 1 12 6.5a4.5 4.5 0 0 1 8 3C20 15 12 20 12 20Z"/></svg>الحضور</a>
+</nav>
+
+<div class="thanks-pop" id="thanks-pop" role="dialog" aria-modal="true" aria-labelledby="thanks-title" hidden>
+  <div class="card">
+    <svg class="heart" aria-hidden="true"><use href="#h"/></svg>
+    <h3 id="thanks-title">شكراً لكم</h3>
+    <p>وصلت تهنئتكم، ودعواتكم الطيبة تسعدنا</p>
+    <div class="sig">Saleh &amp; Shatha</div>
+    <button type="button" id="thanks-close">حياكم الله</button>
+  </div>
+</div>
+
+<script>
+/* ================= settings — edit these ================= */
+const CONFIG = {
+  // Party start, in the guest's local time: year, month (1-12), day, hour (24h), minute
+  event: [2026, 11, 15, 17, 0],
+  venueName: 'صالة Evento · عند باندا مول، دوار حيدر',
+  mapsUrl: '',          // Google Maps share link, e.g. 'https://maps.app.goo.gl/...'
+  mapQuery: 'Evento Panda Mall دوار حيدر',
+  whatsapp: '972592459391',         // couple's number in international format, digits only, e.g. '9627XXXXXXXX'
+  sheetsUrl: 'https://script.google.com/macros/s/AKfycbwWDYJvJHOhg4SaQqnSvwCwnrvKh8-CD6Xe__P24qsOsuj0grBj2cpjekyWkBp_YtSg8w/exec',        // Google Apps Script web-app URL (see wishes-google-script.gs)
+};
+/* ========================================================= */
+
+/* ---------- hero card ---------- */
+const card = document.getElementById('card');
+const stage = document.getElementById('stage');
+const music = document.getElementById('music');
+const start = document.getElementById('start');
+const clip = document.getElementById('clip');
+// Until proposal.mp4 loads (or if it fails), keep the poster photo and animate it with a slow zoom.
+card.classList.add('still');
+clip.addEventListener('loadeddata', () => card.classList.remove('still'));
+// The text layout is drawn at 720x1280; scale it to whatever size the card is.
+new ResizeObserver(() => { stage.style.transform = `scale(${card.clientWidth / 720})`; }).observe(card);
+// Browsers block autoplay with sound, so the invitation opens on a tap.
+// The clip holds on its first frame for a moment before it starts moving.
+const CLIP_HOLD = 2000;
+let clipTimer;
+const playFromStart = () => {
+  card.classList.add('play'); clip.pause(); clip.currentTime = 0;
+  clearTimeout(clipTimer); clipTimer = setTimeout(() => clip.play().catch(() => {}), CLIP_HOLD);
+  music.currentTime = 0; music.play().catch(() => {});
+};
+// Always open on the sealed cover, never at a scroll position remembered from a reload.
+history.scrollRestoration = 'manual';
+scrollTo(0, 0);
+start.onclick = () => { start.classList.add('gone'); document.body.classList.remove('locked'); playFromStart(); };
+
+/* ---------- reveal on scroll ---------- */
+const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add('in')), { threshold: .15 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+/* ---------- story album ---------- */
+(function () {
+  const viewer = document.getElementById('viewer');
+  const big = viewer.querySelector('img');
+  const cards = document.querySelectorAll('#album .photo-frame');
+  // each photo drops in on its own as it scrolls into view
+  const seen = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add('in')), { threshold: .2 });
+  cards.forEach(c => {
+    seen.observe(c);
+    const img = c.querySelector('img');
+    c.querySelector('button').onclick = () => { big.src = img.src; big.alt = img.alt; viewer.showModal(); };
+  });
+  viewer.onclick = () => viewer.close();
+})();
+
+/* ---------- countdown ---------- */
+const [Y, Mo, D, Hh, Mi] = CONFIG.event;
+const target = new Date(Y, Mo - 1, D, Hh, Mi);
+const cdEls = {};
+document.querySelectorAll('#cd b').forEach(b => cdEls[b.dataset.u] = b);
+function tick() {
+  let s = Math.max(0, Math.floor((target - Date.now()) / 1000));
+  if (s === 0) {
+    document.getElementById('cd').hidden = true;
+    document.getElementById('cd-done').hidden = false;
+    return;
+  }
+  const v = { d: Math.floor(s / 86400), h: Math.floor(s / 3600) % 24, m: Math.floor(s / 60) % 60, s: s % 60 };
+  for (const k in v) {
+    const txt = k === 'd' ? String(v[k]) : String(v[k]).padStart(2, '0');
+    if (cdEls[k].textContent !== txt) cdEls[k].textContent = txt;
+  }
+  setTimeout(tick, 1000 - (Date.now() % 1000));
+}
+tick();
+
+// Google Calendar link (3-hour event)
+(function () {
+  const pad = n => String(n).padStart(2, '0');
+  const fmt = d => `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+  const end = new Date(target.getTime() + 3 * 3600e3);
+  const p = new URLSearchParams({
+    action: 'TEMPLATE', text: 'زفاف صالح وشذا', dates: `${fmt(target)}/${fmt(end)}`,
+    details: 'نتشرف بحضوركم حفل زفاف صالح وشذا', location: CONFIG.venueName || CONFIG.mapQuery,
+  });
+  document.getElementById('cal').href = 'https://calendar.google.com/calendar/render?' + p;
+})();
+
+/* ---------- map ---------- */
+(function () {
+  const map = document.getElementById('map');
+  const venue = document.getElementById('venue');
+  const dir = document.getElementById('directions');
+  const PIN = '<svg viewBox="0 0 48 60">'
+    + '<defs><radialGradient id="pin-g" cx="35%" cy="28%" r="75%"><stop offset="0" stop-color="#c43a4b"/><stop offset="1" stop-color="#8a1424"/></radialGradient></defs>'
+    + '<path d="M24 58S7 41.5 7 24a17 17 0 0 1 34 0c0 17.5-17 34-17 34Z" fill="url(#pin-g)"/>'
+    + '<circle cx="24" cy="24" r="10.5" fill="#f6e7d0"/><circle cx="24" cy="24" r="12.5" fill="none" stroke="#b8935a" stroke-width="1"/>'
+    + '<use href="#h" x="18" y="18.8" width="12" height="11" fill="#a3192b"/>'
+    + '</svg>';
+  if (CONFIG.mapQuery || CONFIG.mapsUrl) {
+    const q = CONFIG.mapQuery || CONFIG.venueName;
+    if (q) {
+      const f = document.createElement('iframe');
+      f.loading = 'lazy'; f.referrerPolicy = 'no-referrer-when-downgrade'; f.title = 'موقع الحفل';
+      f.src = 'https://maps.google.com/maps?q=' + encodeURIComponent(q) + '&z=15&output=embed';
+      map.appendChild(f);
+      map.insertAdjacentHTML('beforeend', '<div class="map-pin" aria-hidden="true">' + PIN + '</div>');
+      if (CONFIG.venueName) {
+        // "صالة Evento · عند باندا مول، دوار حيدر" → hall name on top, the landmark under it
+        const [hall, near] = CONFIG.venueName.split(' · ');
+        const card = document.createElement('div');
+        card.className = 'map-card';
+        const b = document.createElement('b'); b.textContent = hall; card.appendChild(b);
+        if (near) { const s = document.createElement('span'); s.textContent = near + ' · غزة'; card.appendChild(s); }
+        const a = document.createElement('a');
+        a.href = CONFIG.mapsUrl || 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
+        a.target = '_blank'; a.rel = 'noopener';
+        a.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>افتح في خرائط Google';
+        card.appendChild(a);
+        map.appendChild(card);
+        const chip = document.createElement('div');
+        chip.className = 'map-chip';
+        chip.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12Z"/><circle cx="12" cy="9" r="2.5"/></svg>';
+        chip.append(CONFIG.venueName);
+        map.appendChild(chip);
+      }
+    }
+    dir.href = CONFIG.mapsUrl || 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
+    document.getElementById('map-cal').href = document.getElementById('cal').href;
+    document.getElementById('map-actions').hidden = false;
+  }
+  if (!map.children.length) {
+    map.innerHTML = '<div class="map-empty"><div class="pin" aria-hidden="true">' + PIN + '<i></i></div>سيتم إضافة موقع الحفل قريباً</div>';
+  }
+  // the name rides on the map chip when there is a map
+  venue.textContent = CONFIG.venueName || '';
+  venue.hidden = !CONFIG.venueName || !!map.querySelector('iframe');
+})();
+
+/* ---------- wishes ---------- */
+const list = document.getElementById('wish-list');
+const form = document.getElementById('wish-form');
+const status = document.getElementById('status');
+const LOCAL_KEY = 'saleh-shatha-wishes';
+
+function readLocal() { try { return JSON.parse(localStorage.getItem(LOCAL_KEY)) || []; } catch { return []; } }
+function writeLocal(arr) { try { localStorage.setItem(LOCAL_KEY, JSON.stringify(arr)); } catch {} }
+
+function renderWishes(items) {
+  list.replaceChildren();
+  if (!items.length) {
+    const p = document.createElement('p'); p.className = 'empty';
+    p.textContent = 'كونوا أول من يبارك للعروسين';
+    list.appendChild(p); return;
+  }
+  for (const w of items) {
+    const card = document.createElement('article'); card.className = 'wish-card';
+    const who = document.createElement('div'); who.className = 'who';
+    who.innerHTML = '<svg class="heart"><use href="#h"/></svg>';
+    who.append(String(w.name || ''));
+    const msg = document.createElement('div'); msg.className = 'msg'; msg.textContent = String(w.message || '');
+    card.append(who, msg);
+    const d = w.time ? new Date(w.time) : null;
+    if (d && !isNaN(d)) {
+      const t = document.createElement('time');
+      t.textContent = d.toLocaleDateString('ar', { day: 'numeric', month: 'long', year: 'numeric' });
+      card.appendChild(t);
+    }
+    list.appendChild(card);
+  }
+}
+
+async function loadWishes() {
+  if (!CONFIG.sheetsUrl) return renderWishes(readLocal());
+  try {
+    const res = await fetch(CONFIG.sheetsUrl, { cache: 'no-store' });
+    renderWishes(await res.json());
+  } catch {
+    list.innerHTML = '<p class="empty">تعذّر تحميل التهاني الآن، حاول لاحقاً</p>';
+  }
+}
+
+const thanksPop = document.getElementById('thanks-pop');
+function openThanks() {
+  thanksPop.hidden = false;
+  requestAnimationFrame(() => requestAnimationFrame(() => thanksPop.classList.add('open')));
+  document.getElementById('thanks-close').focus();
+}
+function closeThanks() {
+  thanksPop.classList.remove('open');
+  setTimeout(() => { thanksPop.hidden = true; }, 350);
+}
+document.getElementById('thanks-close').onclick = closeThanks;
+thanksPop.onclick = e => { if (e.target === thanksPop) closeThanks(); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !thanksPop.hidden) closeThanks(); });
+
+form.onsubmit = async e => {
+  e.preventDefault();
+  const name = form.elements.name.value.trim(), message = form.elements.message.value.trim();
+  if (!name || !message) return;
+  // WhatsApp opens first, while the click still counts as a user gesture (popup blockers).
+  if (CONFIG.whatsapp) {
+    window.open('https://wa.me/' + CONFIG.whatsapp.replace(/\D/g, '') + '?text=' + encodeURIComponent(`${message}\n— ${name}`), '_blank', 'noopener');
+  }
+  const btn = form.querySelector('[type=submit]');
+  btn.disabled = true; status.textContent = 'جاري الإرسال…';
+  try {
+    if (CONFIG.sheetsUrl) {
+      // text/plain avoids a CORS preflight, which Apps Script doesn't answer.
+      const res = await fetch(CONFIG.sheetsUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ name, message }) });
+      const out = await res.json();
+      if (!out.ok) throw new Error();
+      await loadWishes();
+    } else {
+      const arr = readLocal(); arr.unshift({ name, message, time: new Date().toISOString() });
+      writeLocal(arr); renderWishes(arr);
+    }
+    form.elements.message.value = '';
+    status.textContent = '';
+    openThanks();
+  } catch {
+    status.textContent = 'لم يتم الإرسال، حاول مرة أخرى';
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+loadWishes();
+
+/* ---------- bottom bar ---------- */
+(function () {
+  const call = document.getElementById('dock-call');
+  if (CONFIG.whatsapp) call.href = 'tel:+' + CONFIG.whatsapp.replace(/\D/g, '');
+  else call.hidden = true;
+  const btn = document.getElementById('dock-music');
+  const sync = () => { const on = !music.paused; btn.classList.toggle('on', on); btn.setAttribute('aria-pressed', on); };
+  music.addEventListener('play', sync);
+  music.addEventListener('pause', sync);
+  btn.onclick = () => music.paused ? music.play().catch(() => {}) : music.pause();
+  document.querySelector('.dock .center').onclick = e => { e.preventDefault(); scrollTo({ top: 0, behavior: 'smooth' }); };
+})();
+</script>
+</body>
+</html>
